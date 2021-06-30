@@ -91,6 +91,7 @@ fake = '𝐹𝑎𝑗𝑎𝑟 𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖 @mhmdfjralfarizi_'
 numbernye = '0'
 
 // APIKEY
+lolkey = 'ee99cd0639e7028db2a7e1bc'
 HunterApi = 'ikygans'
 
 const time = moment().tz('Asia/Jakarta').format("HH:mm:ss")
@@ -2467,6 +2468,15 @@ break
 					exif.create(namaPack, authorPack)
 					await reply('Done gan')
 				break
+				case 'telestick':
+                    ini_url = args[0]
+                    ini_url = await fetchJson(`http://api.lolhuman.xyz/api/telestick?apikey=${lolkey}&url=${ini_url}`)
+                    ini_sticker = ini_url.result.sticker
+                    for (sticker_ in ini_sticker) {
+                        buffer = await getBaper(ini_sticker[sticker_])
+                        denz.sendMessage(from, buffer, sticker, {quoted: ben})
+                    }
+                    break
 				case 'sticker':
 					case 'stiker':
 					case 's':
