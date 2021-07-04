@@ -1,6 +1,3 @@
-/// by dcode-denpa
-/// jan disebar ajg
-
 const
 	{
 		WAConnection,
@@ -55,6 +52,12 @@ const { mediafireDl } = require('./lib/mediafire.js')
 const { addCommands, checkCommands, deleteCommands } = require('./lib/autoresp')
 const { yta, ytv, buffer2Stream, ytsr, baseURI, stream2Buffer, noop } = require('./lib/ytdl')
 const { getBuffer, getGroupAdmins, getRandom, start, info, success, close } = require('./lib/functions')
+const tictactoe = JSON.parse(fs.readFileSync("./database/tictactoe.json"))
+const tttawal = ["0️⃣","1️⃣","2️⃣","3️⃣","4️⃣","5️⃣","6️⃣","7️⃣","8️⃣","9️⃣"]
+nana = []
+const X = "❌"
+const O = "⭕️"
+const tunjuk = "👈"
 
 // STICKER WM
 //const exect = require('await-exec')
@@ -96,30 +99,30 @@ HunterApi = 'ikygans'
 
 const time = moment().tz('Asia/Jakarta').format("HH:mm:ss")
 
-function kyun(duration) {
+function kyun(seconds) {
 	function pad(s) {
 		return (s < 10 ? '0' : '') + s;
 	}
-	var hours = Math.floor(duration / (60 * 60));
-	var minutes = Math.floor(duration % (60 * 60) / 60);
-	var duration = Math.floor(duration % 60);
+	var hours = Math.floor(seconds / (60 * 60));
+	var minutes = Math.floor(seconds % (60 * 60) / 60);
+	var seconds = Math.floor(seconds % 60);
 
-	//return pad(hours) + ':' + pad(minutes) + ':' + pad(duration)
-	return `${pad(hours)}Jam ${pad(minutes)}Menit ${pad(duration)}Detik`
+	//return pad(hours) + ':' + pad(minutes) + ':' + pad(seconds)
+	return `${pad(hours)}Jam ${pad(minutes)}Menit ${pad(seconds)}Detik`
 }
 const sleep = async (ms) => {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
-function waktu(duration) {
-	duration = Number(duration);
-	var d = Math.floor(duration / (3600 * 24));
-	var h = Math.floor(duration % (3600 * 24) / 3600);
-	var m = Math.floor(duration % 3600 / 60);
-	var s = Math.floor(duration % 60);
+function waktu(seconds) {
+	seconds = Number(seconds);
+	var d = Math.floor(seconds / (3600 * 24));
+	var h = Math.floor(seconds % (3600 * 24) / 3600);
+	var m = Math.floor(seconds % 3600 / 60);
+	var s = Math.floor(seconds % 60);
 	var dDisplay = d > 0 ? d + (d == 1 ? " day, " : " days, ") : "";
 	var hDisplay = h > 0 ? h + (h == 1 ? " hour, " : " hours, ") : "";
 	var mDisplay = m > 0 ? m + (m == 1 ? " minute, " : " minutes, ") : "";
-	var sDisplay = s > 0 ? s + (s == 1 ? " second" : " duration") : "";
+	var sDisplay = s > 0 ? s + (s == 1 ? " second" : " seconds") : "";
 	return dDisplay + hDisplay + mDisplay + sDisplay;
 }
 const addafk = (from) => {
@@ -168,7 +171,7 @@ module.exports = denz = async (denz, mek) => {
 		const content = JSON.stringify(mek.message)
 		const from = mek.key.remoteJid
 		const type = Object.keys(mek.message)[0]
-		const { text, extendedText, contact, location, liveLocation, image, video, sticker, document, audio, product } = MessageType
+		const { text, extendedText, contact, location, liveLocation, image, video, sticker, document, audio } = MessageType
 		const time = moment.tz('Asia/Jakarta').format('DD/MM HH:mm:ss')
 		const cmd = (type === 'conversation' && mek.message.conversation) ? mek.message.conversation : (type == 'imageMessage') && mek.message.imageMessage.caption ? mek.message.imageMessage.caption : (type == 'videoMessage') && mek.message.videoMessage.caption ? mek.message.videoMessage.caption : (type == 'extendedTextMessage') && mek.message.extendedTextMessage.text ? mek.message.extendedTextMessage.text : ''.slice(1).trim().split(/ +/).shift().toLowerCase()
 		if (multi){
@@ -180,11 +183,15 @@ module.exports = denz = async (denz, mek) => {
                 prefix = prefa
             }
         }
+        isStc = Object.keys(mek.message)[0] == "stickerMessage" ? mek.message.stickerMessage.fileSha256.toString('hex') : ""
+	    isStc = `${isStc}`
+        const isStcQ = isStc !== "" && content.includes("extendedTextMessage") ||
+        isStc !== "" && content.includes("conversation")
         body = (type === 'conversation' && mek.message.conversation.startsWith(prefix)) ? mek.message.conversation : (type == 'imageMessage') && mek.message.imageMessage.caption.startsWith(prefix) ? mek.message.imageMessage.caption : (type == 'videoMessage') && mek.message.videoMessage.caption.startsWith(prefix) ? mek.message.videoMessage.caption : (type == 'extendedTextMessage') && mek.message.extendedTextMessage.text.startsWith(prefix) ? mek.message.extendedTextMessage.text : ''
 		budo = (typei === 'conversation') ? mek.message.conversation : (typei === 'extendedTextMessage') ? mek.message.extendedTextMessage.text : ''
 		budy = (type === 'conversation') ? mek.message.conversation : (type === 'extendedTextMessage') ? mek.message.extendedTextMessage.text : ''
 		const command = body.replace(prefix, '').trim().split(/ +/).shift().toLowerCase()
-        const args = body.trim().split(/ +/).slice(1)
+		const args = body.trim().split(/ +/).slice(1)
 		const isCmd = body.startsWith(prefix)
 		const arg = budy.slice(command.length + 2, budy.length)
 		const c = args.join(' ')
@@ -192,23 +199,23 @@ module.exports = denz = async (denz, mek) => {
 		const messagesD = pes.slice(0).trim().split(/ +/).shift().toLowerCase()
 		const dfrply = await getBuffer(me.imgUrl)
         mess = {
-			wait: '\`\`\`⊷️「 Wait a minute 」\`\`\`',
-			success: '\`\`\`⊷️「 Success 」\`\`\`',
+			wait: 'Wait a minute',
+			success: 'Success',
 			error: {
-				stick: '\`\`\`⊷️「 Cannot access videos! 」\`\`\`',
-				Iv: '\`\`\`⊷️「 Invalid link! 」\`\`\`',
-                api: '\`\`\`⊷️「 Error 」\`\`\`'
+				stick: 'Cannot access videos!',
+				Iv: 'Invalid link!',
+                api: 'Error'
 			},
 			only: {
-				group: '\`\`\`⊷️「 Only for within the group! 」\`\`\`',
-				ownerG: '\`\`\`⊷️「 Only for group owners! 」\`\`\`',
-				ownerB: '\`\`\`⊷️「 Only for bot owners! 」\`\`\`',
-				admin: '\`\`\`⊷️「 Only for group admins! 」\`\`\`',
-				Badmin: '\`\`\`⊷️「 Make the bot a group admin! 」\`\`\`'
+				group: 'Only for within the group!',
+				ownerG: 'Only for group owners!',
+				ownerB: 'Only for bot owners!',
+				admin: 'Only for group admins!',
+				Badmin: 'Make the bot a group admin!'
 			}
 		}
 		const botNumber = denz.user.jid
-		const ownerNumber = ["6285721141764@s.whatsapp.net","6281333782061@s.whatsapp.net"] // ganti nomer lu
+		const ownerNumber = ["6281333782061@s.whatsapp.net","6285721141764@s.whatsapp.net"] // ganti nomer lu
 		const isGroup = from.endsWith('@g.us')
 		const sender = mek.key.fromMe ? denz.user.jid : isGroup ? mek.participant : mek.key.remoteJid
 		const senderNumber = sender.split("@")[0] 
@@ -236,6 +243,12 @@ module.exports = denz = async (denz, mek) => {
 		if (!publik) {
 		if (!mek.key.fromMe) return
 		}
+		try {
+		pporang = await denz.getProfilePicture(`${sender.split('@')[0]}@s.whatsapp.net`)
+		      } catch {
+		pporang = 'https://i0.wp.com/www.gambarunik.id/wp-content/uploads/2019/06/Top-Gambar-Foto-Profil-Kosong-Lucu-Tergokil-.jpg'
+		      }
+        const ofrply = await getBuffer(pporang)
 		const sekarang = new Date().getTime();
 			//-
 			//WAKTU
@@ -317,7 +330,7 @@ const floc = {
                         },
        message: {
                     locationMessage: {
-                    name: `${tampilUcapan} ${pushname}\n⎇ `,
+                    name: `${tampilUcapan} ${pushname}\n⎇ ${cmd}`,
                     jpegThumbnail: dfrply
                           }
                         }
@@ -368,6 +381,30 @@ const finv = {
 		}
 	}
 }
+// STICKER
+const fstick = {
+"key": {
+	  "participant": `0@s.whatsapp.net`,
+      "remoteJid": "6289643739077-1613049930@g.us",
+      "fromMe": false,
+      "id": "3B64558B07848BD81108C1D14712018E"
+    },
+    "message": {
+      "stickerMessage": {
+        "fileSha256": "uZiOJzqOvrOo2WGjnMKgX2MMQMyasT+ZDgqUczpIBmY=",
+		"pngThumbnail": dfrply,
+	 "mimetype": "image/webp",
+        "height": 64,
+        "width": 64,
+        "directPath": "/v/t62.15575-24/56110107_763365384384977_5720135628188301198_n.enc?oh=450f8f684b06f0ba2dbc9779e5f06774&oe=605B81EE",
+        "fileLength": "60206",
+        "firstFrameLength": 3626,
+        "isAnimated": false
+      }
+    },
+    "messageTimestamp": "1614070775",
+    "status": "PENDING"
+  }
 // GIF
 const fgi = {
 	 key: { 
@@ -417,19 +454,12 @@ const fvoc = {
 	                  } 
                      }
 
-	try {
-			pporang = await denz.getProfilePicture(`${sender.split('@')[0]}@s.whatsapp.net`)
-		   } catch {
-			pporang = 'https://i0.wp.com/www.gambarunik.id/wp-content/uploads/2019/06/Top-Gambar-Foto-Profil-Kosong-Lucu-Tergokil-.jpg'
-		}
-    const ofrply = await getBuffer(pporang)
-   
    if (!mek.key.remoteJid.endsWith('@g.us') && offline){
 			if (!mek.key.fromMe){
             if (isAfk(mek.key.remoteJid)) return
             addafk(mek.key.remoteJid)
 			heheh = ms(Date.now() - waktuafk)
-			denz.sendMessage(mek.key.remoteJid, `Hai ${pushname}, Maaf sepertinya saat ini 𝐹𝑎𝑗𝑎𝑟 𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖 sedang Offline\n\n*Alasan :* ${alasanafk}\n*Sejak :* ${heheh.hours} Jam, ${heheh.minutes} Menit, ${heheh.duration} Detik\n\nSilahkan hubungi lagi setelah Online`, MessageType.text, { quoted: ftok })
+			denz.sendMessage(mek.key.remoteJid, `Hai ${pushname}, Maaf sepertinya saat ini Denis sedang Offline\n\n*Alasan :* ${alasanafk}\n*Sejak :* ${heheh.hours} Jam, ${heheh.minutes} Menit, ${heheh.seconds} Detik\n\nSilahkan hubungi lagi setelah Online`, MessageType.text, { thumbnail: ofrply, sendEphemeral: true, quoted: ftok })
 			}
 		}
 		if (mek.key.remoteJid.endsWith('@g.us') && offline) {
@@ -442,7 +472,7 @@ const fvoc = {
                         if (isAfk(mek.key.remoteJid)) return
                         addafk(mek.key.remoteJid)
 						heheh = ms(Date.now() - waktuafk)
-						denz.sendMessage(mek.key.remoteJid, `Hai ${pushname}, Maaf sepertinya saat ini 𝐹𝑎𝑗𝑎𝑟 𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖 sedang Offline\n\n*Alasan :* ${alasanafk}\n*Sejak :* ${heheh.hours} Jam, ${heheh.minutes} Menit, ${heheh.duration} Detik\n\nSilahkan hubungi lagi setelah Online`, MessageType.text, { quoted: ftok })
+						denz.sendMessage(mek.key.remoteJid, `Hai ${pushname}, Maaf sepertinya saat ini Denis sedang Offline\n\n*Alasan :* ${alasanafk}\n*Sejak :* ${heheh.hours} Jam, ${heheh.minutes} Menit, ${heheh.seconds} Detik\n\nSilahkan hubungi lagi setelah Online`, MessageType.text, { thumbnail: ofrply, sendEphemeral: true, quoted: ftok })
 					}
 				}
 						}
@@ -565,7 +595,7 @@ denz._events['CB:action,add:relay,message'].unshift(async json => {
 	        denz.sendMessage(from, { displayname: nama, vcard: vcard}, MessageType.contact, {contextInfo: {"mentionedJid": ane}})
             }
 		const reply = (teks) => {
-			denz.sendMessage(from, teks, text, { thumbnail: ofrply, sendEphemeral: true, quoted: mek })
+			denz.sendMessage(from, teks, text, { thumbnail: ofrply, sendEphemeral: true, quoted: mek, contextInfo: { forwardingScore: 508, isForwarded: true}})
 		}
 		const simir = (teks) => {
 			denz.sendMessage(from, teks, text, { quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: `${sender.split('@')[0]}@s.whatsapp.net` } : {}) }, message: { "contactMessage": { "displayName": `${pushname}`, "vcard": `BEGIN:VCARD\nVERSION:3.0\nN:XL;${sender.split('@')[0]},;;;\nFN:${sender.split('@')[0]},\nitem1.TEL;waid=${sender.split('@')[0]}:${sender.split('@')[0]}\nitem1.X-ABLabel:Ponsel\nEND:VCARD`, "jpegThumbnail": dfrply}}}})
@@ -663,7 +693,35 @@ console.log(e)
 					}
 				})
 			}
-			// AUTO
+        if (budo.startsWith(`Kick`)){
+		    if (!isOwner) return reply(mess.only.ownerB)
+		    if (!isGroup) return reply(mess.only.group)
+			if (mek.message.extendedTextMessage === undefined || mek.message.extendedTextMessage === null) return reply('Reply targetnya!')
+			kick = mek.message.extendedTextMessage.contextInfo.participant
+		    denz.groupRemove(from, [kick])
+		    }
+		if (budo.startsWith(`Add`)){
+		    if (!isOwner) return reply(mess.only.ownerB)
+		    if (!isGroup) return reply(mess.only.group)
+			if (mek.message.extendedTextMessage === undefined || mek.message.extendedTextMessage === null) return reply('Reply targetnya!')
+			add = mek.message.extendedTextMessage.contextInfo.participant
+		    denz.groupAdd(from, [add])
+		    }
+		if (budo.startsWith(`Promote`)){
+		    if (!isOwner) return reply(mess.only.ownerB)
+		    if (!isGroup) return reply(mess.only.group)
+			if (mek.message.extendedTextMessage === undefined || mek.message.extendedTextMessage === null) return reply('Reply targetnya!')
+			promote = mek.message.extendedTextMessage.contextInfo.participant
+		    denz.groupMakeAdmin(from, [promote])
+		    }
+		if (budo.startsWith(`Demote`)){
+		    if (!isOwner) return reply(mess.only.ownerB)
+		    if (!isGroup) return reply(mess.only.group)
+			if (mek.message.extendedTextMessage === undefined || mek.message.extendedTextMessage === null) return reply('Reply targetnya!')
+			demote = mek.message.extendedTextMessage.contextInfo.participant
+		    denz.groupDemoteAdmin(from, [demote])
+		    }
+		// AUTO
 			for (let anji of setik){
 				if (budy === anji){
 					result = fs.readFileSync(`./media/sticker/${anji}.webp`)
@@ -732,20 +790,310 @@ const sotoy = [
         '🔔 : 🍐 : 🔔',
         '🍌 : 🍌 : 🍌 Win👑'
         ]
-    
-    // FUNTION DETECT TROLI
-  if (!mek.key.fromMe)
-  try{
-if(!mek.message.extendedTextMessage.contextInfo.quotedMessage.orderMessage == ''){
-try{
-		teks = `*T R O L I  D E T E C T E D*\n\n- remoteJid : ${mek.key.remoteJid}\n- fromMe : ${mek.key.fromMe}\n- id : ${mek.key.id}`
-		reply(teks)
-		denz.deleteMessage(mek.key.remoteJid)
-	}catch(e){
+
+const mentionUser = type == "extendedTextMessage" ? mek.message.extendedTextMessage.contextInfo.mentionedJid || [] : []
+        mentionByReply = type == "extendedTextMessage" ? mek.message.extendedTextMessage.contextInfo.participant || "" : ""
+        mentionUser.push
+idttt = []
+	players1 = []
+	players2 = []
+	gilir = []
+	for (let t of nana){
+	  idttt.push(t.id)
+	  players1.push(t.player1)
+	  players2.push(t.player2)
+	  gilir.push(t.gilir)
 	}
-}}catch(e){
+	const isTTT = isGroup ? idttt.includes(from) : false
+	isPlayer1 = isGroup ? players1.includes(sender) : false
+  isPlayer2 = isGroup ? players2.includes(sender) : false
+  getWin = async(board) => {
+    var x = ["❌"]
+    var o = ["⭕️"]
+
+    // Horizontal
+    if (board[0] == x && board[1] == x && board[2] == x) return x
+    if (board[3] == x && board[4] == x && board[5] == x) return x
+    if (board[6] == x && board[7] == x && board[8] == x) return x
+    if (board[0] == o && board[1] == o && board[2] == o) return o
+    if (board[3] == o && board[4] == o && board[5] == o) return o
+    if (board[6] == o && board[7] == o && board[8] == o) return o
+
+    // Silang
+    if (board[0] == x && board[4] == x && board[8] == x) return x
+    if (board[2] == x && board[4] == x && board[6] == x) return x
+    if (board[0] == o && board[4] == o && board[8] == o) return o
+    if (board[2] == o && board[4] == o && board[6] == o) return o
+
+    // Vertikal
+    if (board[0] == x && board[3] == x && board[6] == x) return x
+    if (board[1] == x && board[4] == x && board[7] == x) return x
+    if (board[2] == x && board[5] == x && board[8] == x) return x
+    if (board[0] == o && board[3] == o && board[6] == o) return o
+    if (board[1] == o && board[4] == o && board[7] == o) return o
+    if (board[2] == o && board[5] == o && board[8] == o) return o
+    return false
+}
+generateBoard = async(board) => {
+    var text = ""
+    var count = 0
+    for (var x of board) {
+        if (count % 3 == 0) {
+            text += "\n         "
+        }
+        text += x
+        count += 1
+    }
+    return text
+}
+if (tictactoe.hasOwnProperty(senderNumber) && ["1", "2", "3", "4", "5", "6", "7", "8", "9"].includes(budy) && !isCmd) {
+
+            var { enemy, mode, board, step } = tictactoe[senderNumber]
+
+            if ([X, O].includes(board[Number(budy) - 1])) return await reply(`Angka ${budy} telah diisi`)
+
+            var data = tictactoe[senderNumber]
+
+            data["enemy"] = senderNumber
+
+            mode = mode == X ? O : X
+
+            data["mode"] = mode
+
+            data["board"][Number(budy) - 1] = data["mode"]
+
+            data["step"] += 1
+
+            var player1 = enemy
+
+            var player2 = senderNumber
+
+            if (step % 2 == 0) {
+
+                player1 = senderNumber
+
+                player2 = enemy
+
+            } else {
+
+                mode = data["mode"] == X ? O : X
+
+            }
+
+            tictactoe[enemy] = data
+
+            delete tictactoe[senderNumber]
+
+            var teks = `Player 1: @${player1.split("@")[0]} (${mode})`
+
+            mode = mode == X ? O : X
+
+            var text2 = `\n\nPlayer 2: @${player2.split("@")[0]} (${mode})`
+
+            board = await generateBoard(data["board"])
+
+            var win = await getWin(data["board"])
+
+            if (win) {
+
+                teks = board
+
+                teks += "\n\n"
+
+                teks += `@${player1} vs @${player2}\n`
+
+                if (win == mode) {
+
+                    teks += `Hasil : @${player2} WIN`
+
+                    return denz.sendMessage(from, teks, text, {quoted:mek, contextInfo:{mentionedJid: [player1 + "@s.whatsapp.net", player2 + "@s.whatsapp.net"]}}).then(() => {
+
+                        delete tictactoe[enemy]
+
+                        fs.writeFileSync("./database/tictactoe.json", JSON.stringify(tictactoe))
+
+                    })
+
+                } else {
+
+                    teks += `Hasil : @${player1} WIN`
+
+                    return denz.sendMessage(from, teks, text, {quoted:mek, contextInfo:{mentionedJid: [player1 + "@s.whatsapp.net", player2 + "@s.whatsapp.net"]}}).then(() => {
+
+                        delete tictactoe[enemy]
+
+                        fs.writeFileSync("./database/tictactoe.json", JSON.stringify(tictactoe))
+
+                    })
+
+                }
+
+            }
+
+            if (data["step"] == 9) {
+
+                teks = board
+
+                teks += "\n\n"
+
+                teks += `@${player1} vs @${player2}\n`
+
+                teks += `Hasil : Seri`
+
+                return denz.sendMessage(from, teks, text, {quoted:mek, contextInfo:{mentionedJid: [player1 + "@s.whatsapp.net", player2 + "@s.whatsapp.net"]}}).then(() => {
+
+                    delete tictactoe[enemy]
+
+                    fs.writeFileSync("./database/tictactoe.json", JSON.stringify(tictactoe))
+
+                })
+
+            }
+
+            player2 == senderNumber ? teks += tunjuk : text2 += tunjuk
+
+            teks += "\n"
+
+            teks += board
+
+            teks += text2
+
+            return denz.sendMessage(from, teks, text, {quoted:mek, contextInfo:{mentionedJid: [player1 + "@s.whatsapp.net", player2 + "@s.whatsapp.net"]}}).then(() => {
+
+                fs.writeFileSync("./database/tictactoe.json", JSON.stringify(tictactoe))
+
+            })
+
+        }
+        if (isTTT && isPlayer1){
+nuber = parseInt(body)
+if (isNaN(nuber)) return
+if (nuber < 1 || nuber > 9) return reply('Masukan Angka Dengan Benar')
+main = nana.filter(hjh => hjh.id.includes(from)) 
+if (!tttawal.includes(main[0].angka[nuber])) return reply('Udah Di Isi, Isi Yang Lain Gan')
+if (main[0].gilir.includes(sender)) return reply('Tunggu Giliran Gan')
+s = '❌'
+main[0].angka[nuber] = s
+main[0].gilir = main[0].player1
+naa = nana.filter(hhg => !hhg.id.includes(from))
+nana = naa
+pop = main[0]
+nana.push(pop)
+tto = nana.filter(hgh => hgh.id.includes(from))
+tty = tto[0]
+angka = tto[0].angka
+ttt = `${angka[1]}${angka[2]}${angka[3]}\n${angka[4]}${angka[5]}${angka[6]}\n${angka[7]}${angka[8]}${angka[9]}`
+
+ucapmenang = () => {
+ucapan1 = ` *TicTacToe* \nYeyyy Permainan Di Menangkan Oleh *@${tty.player1.split('@')[0]}*\n`
+ucapan2 = ` *TicTacToe* \n*Hasil Akhir:*\n\n${ttt}`
+denz.sendMessage(from, ucapan1, text, {quoted:mek, contextInfo:{mentionedJid: [tty.player1]}})
+reply(ucapan2)
+naa = nana.filter(hhg => !hhg.id.includes(from))
+return nana = naa
 }
 
+if (angka[1] == s && angka[2] == s && angka[3] == s) return ucapmenang()
+
+if (angka[1] == s && angka[4] == s && angka[7] == s) return ucapmenang()
+
+if (angka[1] == s && angka[5] == s && angka[9] == s) return ucapmenang()
+
+if (angka[2] == s && angka[5] == s && angka[8] == s) return ucapmenang()
+
+if (angka[4] == s && angka[5] == s && angka[6] == s) return ucapmenang()
+
+if (angka[7] == s && angka[8] == s && angka[9] == s) return ucapmenang()
+
+if (angka[3] == s && angka[5] == s && angka[7] == s) return ucapmenang()
+
+if (angka[3] == s && angka[6] == s && angka[9] == s) return ucapmenang()
+
+if (!ttt.includes('1️⃣') && !ttt.includes('2️⃣') && !ttt.includes('3️⃣') && ! ttt.includes('4️⃣') && !
+ttt.includes('5️⃣') && !
+ttt.includes('6️⃣') && ! ttt.includes('7️⃣') && ! ttt.includes('8️⃣') && ! ttt.includes('9️⃣')){
+ucapan1 = ` *TicTacToe* \n*_Permainan Draw Akibat Kebuntuan_*`
+ucapan2 = ` *TicTacToe* \n*Hasil Akhir:*\n\n${ttt}`
+reply(ucapan1)
+reply(ucapan2)
+naa = nana.filter(hhg => !hhg.id.includes(from))
+return nana = naa
+}
+ucapan = ` *TicTacToe* \nGiliran @${tty.player2.split('@')[0]}\nPlayer1 @${tty.player1.split('@')[0]}\n\n${ttt}`
+ denz.sendMessage(from, ucapan, text, {quoted: mek, contextInfo:{mentionedJid: [tty.player1,tty.player2]}})
+}
+if (isTTT && isPlayer2){
+nuber = parseInt(body)
+if (isNaN(nuber)) return
+if (nuber < 1 || nuber > 9) return reply('Masukan Angka Dengan Benar')
+main = nana.filter(hjh => hjh.id.includes(from)) 
+if (!tttawal.includes(main[0].angka[nuber])) return reply('Udah Di Isi, Isi Yang Lain Gan')
+if (main[0].gilir.includes(sender)) return reply('Tunggu Giliran Gan')
+s = '⭕'
+main[0].angka[nuber] = s
+main[0].gilir = main[0].player2
+naa = nana.filter(hhg => !hhg.id.includes(from))
+nana = naa
+pop = main[0]
+nana.push(pop)
+tto = nana.filter(hgh => hgh.id.includes(from))
+tty = tto[0]
+angka = tto[0].angka
+ttt = `${angka[1]}${angka[2]}${angka[3]}\n${angka[4]}${angka[5]}${angka[6]}\n${angka[7]}${angka[8]}${angka[9]}`
+
+ucapmenang = () => {
+ucapan1 = ` *TicTacToe* \nYeyyy Permainan Di Menangkan Oleh *@${tty.player2.split('@')[0]}*\n`
+ucapan2 = ` *TicTacToe* \n*Hasil Akhir:*\n\n${ttt}`
+denz.sendMessage(from, ucapan1, text, {quoted:mek, contextInfo:{mentionedJid: [tty.player2]}})
+reply(ucapan2)
+naa = nana.filter(hhg => !hhg.id.includes(from))
+return nana = naa
+}
+
+if (angka[1] == s && angka[2] == s && angka[3] == s) return ucapmenang()
+
+if (angka[1] == s && angka[4] == s && angka[7] == s) return ucapmenang()
+
+if (angka[1] == s && angka[5] == s && angka[9] == s) return ucapmenang()
+
+if (angka[2] == s && angka[5] == s && angka[8] == s) return ucapmenang()
+
+if (angka[4] == s && angka[5] == s && angka[6] == s) return ucapmenang()
+
+if (angka[7] == s && angka[8] == s && angka[9] == s) return ucapmenang()
+
+if (angka[3] == s && angka[5] == s && angka[7] == s) return ucapmenang()
+
+if (angka[3] == s && angka[6] == s && angka[9] == s) return ucapmenang()
+
+if (!ttt.includes('1️⃣') && !ttt.includes('2️⃣') && !ttt.includes('3️⃣') && ! ttt.includes('4️⃣') && !
+ttt.includes('5️⃣') && !
+ttt.includes('6️⃣') && ! ttt.includes('7️⃣') && ! ttt.includes('8️⃣') && ! ttt.includes('9️⃣')){
+ucapan1 = ` *TicTacToe* \n*_Permainan Draw Akibat Kebuntuan_*`
+ucapan2 = ` *TicTacToe* \n*Hasil Akhir:*\n\n${ttt}`
+reply(ucapan1)
+reply(ucapan2)
+naa = nana.filter(hhg => !hhg.id.includes(from))
+return nana = naa
+}
+ucapan = ` *TicTacToe* \nGiliran @${tty.player1.split('@')[0]}\nPlayer2 @${tty.player2.split('@')[0]}\n\n${ttt}`
+ denz.sendMessage(from, ucapan, text, {quoted: mek, contextInfo:{mentionedJid: [tty.player1,tty.player2]}})
+} else {
+}
+
+        const isStcMedia = isStc !== "" && content.includes("quotedMessage") && !content.includes("extendedTextMessage") || isStc !== "" && content.includes("quotedMessage") && !content.includes("conversation")
+	    const isStcVideo = isStcMedia && content.includes("videoMessage")
+	    const isStcImage = isStcMedia && content.includes("imageMessage")
+	    const isStcSticker = isStcMedia && content.includes("stickerMessage")
+        const isStcTeks = isStcMedia && content.includes("quotedMessage")
+        const isStcDocs = isStcMedia && content.includes("documentMessage")
+        const isStcContact = isStcMedia && content.includes("contactMessage")
+        const isStcAudio = isStcMedia && content.includes("audioMessage")
+        const isStcLoca = isStcMedia && content.includes("locationMessage")
+        const isStcTag = isStcMedia && content.includes("mentionedJid")
+        const isStcReply = isStcMedia && content.includes("Message")
+        const isStcProd = isStcMedia && content.includes("productMessage")
+       
         const isMedia = (type === 'imageMessage' || type === 'videoMessage')
         const isQuotedImage = type === 'extendedTextMessage' && content.includes('imageMessage')
 		const isQuotedVideo = type === 'extendedTextMessage' && content.includes('videoMessage')
@@ -755,43 +1103,282 @@ try{
 	    if (!command) console.log(mek)
 	    if (isCmd && isGroup) {console.log(color('[ CMD GROUP ]'), color(moment(mek.messageTimestamp * 1000).format('DD/MM/YY HH:mm:ss'), 'magenta'), color(`${command} [${args.length}]`, 'cyan'), color('from', 'pink'), color(`${pushname}`, 'yellow'), color('in', 'pink'), color(`${groupName}`, 'gold'))}
         
-        switch (command) {
-        	case 'menu':
-			   case 'help':
-		        dtod = "6285866295942@s.whatsapp.net" //jangan diganti
-		        fajar = "6281333782061@s.whatsapp.net"
+        switch (isStc) {
+        	case "5b017c6ac1fb953c7bd21034d2fca5fad75ef2da4c3b2c2877ef49fa544e74bf":
+        if (!isStcSticker) return reply('Reply stickernya bgsd!')
+        su = mek.message.stickerMessage.contextInfo.quotedMessage.stickerMessage.fileSha256.toString('hex')
+        reply(su)
+        break
+        case '6ff65f6bf3a00003497794e68e61c6a487fa77b8241fb71d167f5685487838da':
+					const timestampid = speed();
+					const latensyid = speed() - timestampid
+					reply(`Speed: ${latensyid.toFixed(4)} Second`)
+					break
+        case 'e31fb04748fcd47e14f074971449f101ae3b91bf4ada7b29e7e3204f81e6b325':
+				runtime = process.uptime()
+				denz.sendMessage(from, `- Active!\n${waktu(runtime)}`, text, {quoted: floc})
+				break
+        case 'd699022cbf769aad7ea15f0243f5e36ee4c201a79db405daef1c9c47e1bced22':
+            case'998cfa8a1cf6604bd1be5c8866d92cc38072ef8041f26c51b78ce08d5cd18f5a':
+				var groups = denz.chats.array.filter(v => v.jid.endsWith('g.us'))
+				var privat = denz.chats.array.filter(v => v.jid.endsWith('s.whatsapp.net'))
+				var ram2 = `${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)}MB / ${Math.round(require('os').totalmem / 1024 / 1024)}MB`
+					uptime = process.uptime();
+					const timestamp = speed();
+					const totalChat = await denz.chats.all()
+					const latensi = speed() - timestamp
+					var total = math(`${groups.length} ${privat.length}`)
+					const { wa_version, mcc, mnc, os_version, device_manufacturer, device_model } = denz.user.phone
+					stamtus = `⍟ ────────────────── ⍟
+
+Private Chat : ${privat.length}
+Group Chat : ${groups.length}
+Total Chat : ${totalChat.length}
+Speed : ${latensi.toFixed(4)} second
+Runtime : ${kyun(uptime)}
+Baterai : ${baterai.battery}
+Charged : ${baterai.isCharge}
+Mode : ${publik ? 'public' : 'self'}
+Penggunaan Ram : ${ram2}
+Hostname : ${os.hostname()}
+Platform : ${os.platform()}
+Uptime : ${kyun(os.uptime())}
+MNC : ${mnc}
+MCC : ${mcc}
+Device Model: ${denz.user.phone.device_model}
+Device Manufactur : ${device_manufacturer}
+Wa Version: ${denz.user.phone.wa_version}
+Os Version: ${denz.user.phone.os_version}
+
+⍟ ────────────────── ⍟`
+denz.sendMessage(from, stamtus, text, { thumbnail: ofrply, sendEphemeral: true, quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {})}, message: { orderMessage: { itemCount: 0000000000, status: 200, thumbnail: dfrply, surface: 200, message: '𝐹𝑎𝑗𝑎𝑟𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖', orderTitle: '𝐹𝑎𝑗𝑎𝑟-𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖', sellerJid: '0@s.whatsapp.net'}}}, contextInfo: { forwardingScore: 508, isForwarded: true}})
+break
+        case '2bfedd9f1a9d14a6684be6322a41a24f5a3fa75c3d1fc41376c8da4f1747eb1e':
+					if (!isGroup) return reply(mess.only.group)
+                   if (!isBotGroupAdmins) return reply(mess.only.Badmin)
+                   reply(`Sukses membuka grup ${groupName}`)
+						denz.groupSettingChange(from, GroupSettingChange.messageSend, false)
+						break
+        case 'd4fffcc9782e7e2afa5dbd99929745973e02a94d5aecfc477722a0861afdf9f5':
+						if (!isGroup) return reply(mess.only.group)
+                   if (!isBotGroupAdmins) return reply(mess.only.Badmin)
+						reply(`Sukses menutup grup ${groupName}`)
+						denz.groupSettingChange(from, GroupSettingChange.messageSend, true)
+					break
+					case 'ac4c367af1fd8a2db5fe39c5f164f7230afbec56ad827f72fcebab0f429629f5':
+				if (!isOwner) return reply(mess.only.ownerB)
+			publik = true
+				reply('Sukses mengubah mode self ke public')
+			break
+			case '175f79a7f7c747e3d6cd279c180a20a3534cce0fc40fba1402c1dc169b2ded2e':
+			if (!isOwner) return reply(mess.only.ownerB)
+				publik = false
+				reply('Sukses mengubah mode public ke self')
+			break
+			case '58b262063ebe75a5d0534eee10b8d1840b36fd8d55b4a9786add692990f94b1b':
+            dtod = "6285866295942@s.whatsapp.net" //jangan diganti
+            fajar = "6281333782061@s.whatsapp.net"
 		        admint = "0@s.whatsapp.net"
 		        var fake = fs.readFileSync('./fake.jpg')
-		        furl = 'https://lh3.googleusercontent.com/fife/AAWUweV44ow9SEfNO_ix7F-7kmLkheJDWy1u9dJKTDTsVoazndm6JysaE2rvNnx6pEcWfMKT6e4eI0UldhViw0XQdv4UlZZqn2LYgm8BWQT2K92fV4_USr0xkjHdq9L0jSsCpCAbcWG39J910HNvGfajYvcz7Wo9w8AlcglU2PDoeo2qAOt5u63aKuh5H_GTZIRCOfGEFJvTmEXBAVW32GXeIDrtci395C_AE5r6Ir8lljrkT4ABNSlBva6h9o8yutdNJGxIvpmjfjgsIvzICGF1j_XrHCs2ip1ovdku3vivVCAcmDA_Axk9x_7ETpgAImaTGE9OjZd-SUn3-z8_2Xd7B--G8I4e7vNPxFcX5aHvU_P5ju4nmMnTlOyhneAn23DNptKYpKNxZa-Eh_OTQFv02P5K0C9oDJ4giYjTeAdttPX5ORbQXBzCG71lSTfEiZOkDhI3_g5xv7JNcaOIP2F-IORccpem6n63FUgEfZTeJU32yeTmZDpie_wMMvdhp03_gnWLr3ctgHxDtDHYyBa5JYwNAzpX06ch3_RE92iGsd8AxBQgtkrgSrtTQT4zjPhYcnEoKfIGnTRK-HVdSS4GsCLTnzOt8MTADFIa_nPQVZCdO-UTBX4VUNQMuGMrs7l87f874M9wv-gDM4e3xfjzEq-_WGVMTo2TsjoESXANmDApUrwVlbnKiz4OVh-PHdpze0ppZq50YFKmbbhz-_bHf6FfNpI9BhIqL9w=w348-h260-p-k-nu-ft'
+		        furl = 'https://i.ibb.co/zZcgDsr/db7fbd47369c.jpg'
 		        var fbitch = await getBuffer(furl)
-				const menuc = `❏ *BITCH BOOT*
+				const menuc = `❏ 「 \`\`\`BITCH BOOT\`\`\` 」
 ├────────────────────
 ├ Creator : @${dtod.split('@')[0]} & @${admint.split('@')[0]}
 ├ Owner : @${fajar.split('@')[0]}
 ├ Battery : ${baterai.battery}
 ├ Status : ${isOwner ? 'Owner' : 'User'}
 ├ Mode : ${publik ? 'Public' : 'Self'}
-└ Kalender : ${jmn}, ${week} ${weton}, ${calender}
+└ https://chat.whatsapp.com/Dgt6JhzTvlmEor8Zz23fHx
 
-❏ *INFO*
+❏ 「 \`\`\`ABOUT\`\`\` 」
 ├────────────────────
-├ Instagram : https://instagram.com/mhmdfjralfarizi_
-├ Youtube : https://tinyurl.com/4a4nv2cj
-└ Group : https://tinyurl.com/ye3h4hra
+├ status
+├ runtime
+├ speed
+└ delete [ _reply chat_ ]
 
-❏ *ABOUT*
+❏ 「 \`\`\`MENU OWNER\`\`\` 」
+├────────────────────
+├ bc [ _teks/reply gif/image/video with caption_ ]
+├ tobc [ _reply sticker/audio with caption_ ]
+├ return [ _javascript_ ]
+├ clearall
+├ delchat
+├ mute
+├ unmute
+├ public
+├ self
+├ upswteks [ _teks_ ]
+├ upswlokasi [ _teks_ ]
+├ upswaudio [ _reply audio_ ]
+├ upswvoice [ _reply audio_ ]
+├ upswsticker [ _reply sticker_ ]
+├ upswimage [ _reply image with caption_ ]
+├ upswgif [ _reply gif with caption_ ]
+├ upswvideo [ _reply video with caption_ ]
+├ shutdown
+├ offline [ _alasan_ ]
+├ online
+├ exif [ _nama|author_ ]
+├ setprofile [ _reply image_ ]
+├ setname [ _teks_ ]
+├ setprefix [ _multi/nopref_ ]
+├ setbio [ _teks_ ]
+├ addsticker [ _nama_ ]
+├ delsticker [ _nama_ ]
+├ addvn [ _nama_ ]
+├ delvn [ _nama_ ]
+├ addimage [ _nama_ ]
+├ delimage [ _nama_ ]
+├ bug [ _jumlah_ ]
+├ bugpc2 [ _jumlah_ ]
+├ bugtroli2 [ _jumlah_ ]
+├ bugpc
+├ bugcombine
+├ bugtroli
+├ buglokasi
+├ bughole
+├ leave
+├ restart
+├ join [ _link group_ ]
+├ addrespon [ _tanya|jawab_ ]
+└ delrespon [ _nama_ ]
+
+❏ 「 \`\`\`MENU DOWNLOAD\`\`\` 」
+├────────────────────
+├ infogempa
+├ herolist
+├ herodetail [ _hero_ ]
+├ google [ _search_ ]
+├ gimage [ _search_ ]
+├ wiki [ _search_ ]
+├ mediafire [ _link_ ]
+├ ytsearch [ _judul_ ]
+├ ytmp4 [ _link yt_ ]
+├ ytmp3 [ _link yt_ ]
+├ play [ _judul lagu_ ]
+├ video [ _judul video_ ]
+├ tinyurl [ _link_ ]
+├ lirik [ _judul_ ]
+├ resepmasakan [ _judul_ ]
+├ artimimpi [ _teks_ ]
+├ bilangangka [ _angka_ ]
+├ kalkulator [ _angka_ ]
+├ fancytext [ _teks_ ]
+├ githubstalk [ _username_ ]
+├ translate [ _kodebhs|teks_ ]
+└ ss [ _link_ ]
+
+❏ 「 \`\`\`MENU MAKER\`\`\` 」
+├────────────────────
+├ matrix [ _teks_ ]
+├ googletxt [ _teks_ ]
+├ spiderman [ _teks_ ]
+├ express [ _teks_ ]
+├ dance [ _teks_ ]
+├ blackbird [ _teks_ ]
+├ text3d [ _teks_ ]
+└ pubg [ _teks1|teks2_ ]
+
+❏ 「 \`\`\`MENU GROUP\`\`\` 」
+├────────────────────
+├ getpict [ _@tag_ ]
+├ getbio [ _@tag_ ]
+├ promote [ _@tag_ ]
+├ demote [ _@tag_ ]
+├ antilink [ _1/0_ ]
+├ autosticker [ _1/0_ ]
+├ welcome [ _1/0_ ]
+├ antibule [ _1/0_ ]
+├ creategrup [ _nama|@tag_ ]
+├ tictactoe [ _x/o @tag_ ]
+├ delttt
+├ getpp
+├ getdeskgc
+├ sider [ _reply pesan bot_ ]
+├ hacked [ _teks_ ]
+├ setnamegc [ _teks_ ]
+├ setdeskgc [ _teks_ ]
+├ fitnah [ _@tag|teks1|teks2_ ]
+├ kontak [ _@tag|nama_ ]
+├ kontag [ _@tag|nama_ ]
+├ opengc
+├ closegc
+├ linkgrup
+├ hidetag [ _teks_ ]
+├ sticktag [ _nama sticker_ ]
+└ totag [ _reply media_ ]
+
+❏ 「 \`\`\`MENU OTHER\`\`\` 」
+├────────────────────
+├ slots
+├ suit [ _gunting/batu/kertas_ ]
+├ tag [ _nomor_ ]
+├ tagme
+├ tts [ _kodebhs teks_ ]
+├ readmore [ _teks1|teks2_ ]
+├ fitnahpc [ _nomor|teks1|teks2_ ]
+├ chat [ _nomor|teks_ ]
+├ fdeface [ _replyimg link|teks1|teks2_ ]
+├ listimage
+├ liststicker
+├ listvn
+├ pantun
+├ spam [ _teks|jumlah_ ]
+├ tospam [ _reply audio/sticker/image|jumlah_ ]
+├ sharelock [ _teks1|teks2_ ]
+├ sticker
+├ stickerwm [ _nama|author_ ]
+├ takestick [ _nama|author_ ]
+├ colong [ _reply sticker_ ]
+├ dadu
+├ semoji [ _emoji_ ]
+├ attp [ _teks_ ]
+├ toimg
+├ tomp3 [ _reply video_ ]
+├ tomp4 [ _reply sticker gif_ ]
+├ robot [ _reply audio_ ]
+├ balik [ _reply audio_ ]
+├ bass [ _reply audio_ ]
+├ gemuk [ _reply audio_ ]
+├ detikvn [ _reply audio caption angka_ ]
+└ detikvideo [ _reply video caption angka_ ]`
+///denz.sendMessage(from, { text: menuc, matchedText: 'https://chat.whatsapp.com/Dgt6JhzTvlmEor8Zz23fHx', description: "bitch • boot", title: `${jmn} - ${week} - ${calender}`, jpegThumbnail: ofrply }, 'extendedTextMessage', { detectLinks: false, contextInfo: { forwardingScore: 508, isForwarded: true, mentionedJid: [dtod, fajar, admint]}, quoted: finv})
+denz.sendMessage(from, fake, image, { thumbnail: fbitch, contextInfo: { forwardingScore: 508, isForwarded: true, mentionedJid: [dtod, fajar, admint]}, caption:menuc, quoted: ftrol })
+				break
+				}
+        switch (command) {
+        	case 'menu':
+		        dtod = "6285866295942@s.whatsapp.net" //jangan diganti
+		        fajar = "6281333782061@s.whatsapp.net"
+		        admint = "0@s.whatsapp.net"
+		        var fake = fs.readFileSync('./fake.jpg')
+		        furl = 'https://i.ibb.co/zZcgDsr/db7fbd47369c.jpg'
+		        var fbitch = await getBuffer(furl)
+				const menuc = `❏ 「 \`\`\`BITCH BOOT\`\`\` 」
+├────────────────────
+├ Creator : @${dtod.split('@')[0]} & @${admint.split('@')[0]}
+├ Owner : @${fajar.split('@')[0]}
+├ Battery : ${baterai.battery}
+├ Status : ${isOwner ? 'Owner' : 'User'}
+├ Mode : ${publik ? 'Public' : 'Self'}
+└ https://chat.whatsapp.com/Dgt6JhzTvlmEor8Zz23fHx
+
+❏ 「 \`\`\`ABOUT\`\`\` 」
 ├────────────────────
 ├ ${prefix}status
 ├ ${prefix}runtime
 ├ ${prefix}speed
 └ ${prefix}delete [ _reply chat_ ]
 
-❏ *MENU OWNER*
+❏ 「 \`\`\`MENU OWNER\`\`\` 」
 ├────────────────────
 ├ ${prefix}bc [ _teks/reply gif/image/video with caption_ ]
 ├ ${prefix}tobc [ _reply sticker/audio with caption_ ]
 ├ ${prefix}return [ _javascript_ ]
 ├ ${prefix}clearall
+├ ${prefix}delchat
 ├ ${prefix}mute
 ├ ${prefix}unmute
 ├ ${prefix}public
@@ -832,7 +1419,7 @@ try{
 ├ ${prefix}addrespon [ _tanya|jawab_ ]
 └ ${prefix}delrespon [ _nama_ ]
 
-❏ *MENU DOWNLOAD*
+❏ 「 \`\`\`MENU DOWNLOAD\`\`\` 」
 ├────────────────────
 ├ ${prefix}infogempa
 ├ ${prefix}herolist
@@ -857,7 +1444,7 @@ try{
 ├ ${prefix}translate [ _kodebhs|teks_ ]
 └ ${prefix}ss [ _link_ ]
 
-❏ *MENU MAKER*
+❏ 「 \`\`\`MENU MAKER\`\`\` 」
 ├────────────────────
 ├ ${prefix}matrix [ _teks_ ]
 ├ ${prefix}googletxt [ _teks_ ]
@@ -868,7 +1455,7 @@ try{
 ├ ${prefix}text3d [ _teks_ ]
 └ ${prefix}pubg [ _teks1|teks2_ ]
 
-❏ *MENU GROUP*
+❏ 「 \`\`\`MENU GROUP\`\`\` 」
 ├────────────────────
 ├ ${prefix}getpict [ _@tag_ ]
 ├ ${prefix}getbio [ _@tag_ ]
@@ -879,8 +1466,9 @@ try{
 ├ ${prefix}welcome [ _1/0_ ]
 ├ ${prefix}antibule [ _1/0_ ]
 ├ ${prefix}creategrup [ _nama|@tag_ ]
+├ ${prefix}tictactoe [ _x/o @tag_ ]
+├ ${prefix}delttt
 ├ ${prefix}getpp
-├ ${prefix}getppgc
 ├ ${prefix}getdeskgc
 ├ ${prefix}sider [ _reply pesan bot_ ]
 ├ ${prefix}hacked [ _teks_ ]
@@ -896,7 +1484,7 @@ try{
 ├ ${prefix}sticktag [ _nama sticker_ ]
 └ ${prefix}totag [ _reply media_ ]
 
-❏ *OTHER MENU*
+❏ 「 \`\`\`MENU OTHER\`\`\` 」
 ├────────────────────
 ├ ${prefix}slots
 ├ ${prefix}suit [ _gunting/batu/kertas_ ]
@@ -926,11 +1514,176 @@ try{
 ├ ${prefix}tomp4 [ _reply sticker gif_ ]
 ├ ${prefix}robot [ _reply audio_ ]
 ├ ${prefix}balik [ _reply audio_ ]
+├ ${prefix}bass [ _reply audio_ ]
 ├ ${prefix}gemuk [ _reply audio_ ]
 ├ ${prefix}detikvn [ _reply audio caption angka_ ]
 └ ${prefix}detikvideo [ _reply video caption angka_ ]`
-denz.sendMessage(from, fake, image, { thumbnail: fbitch, contextInfo: { forwardingScore: 508, isForwarded: true, mentionedJid: [dtod,fajar,admint]}, caption:menuc, quoted: finv })
+denz.sendMessage(from, { text: menuc, matchedText: 'https://chat.whatsapp.com/Dgt6JhzTvlmEor8Zz23fHx', description: "bitch • boot", title: `${jmn} - ${week} - ${calender}`, jpegThumbnail: ofrply }, 'extendedTextMessage', { detectLinks: false, contextInfo: { forwardingScore: 508, isForwarded: true, mentionedJid: [dtod, fajar, admint]}, quoted: finv})
+///denz.sendMessage(from, fake, image, { thumbnail: fbitch, contextInfo: { forwardingScore: 508, isForwarded: true, mentionedJid: [dtod, fajar, admint]}, caption:menuc, quoted: ftrol })
 				break
+				case 'help':
+res = denz.prepareMessageFromContent(from,{
+"listMessage": {
+"title": `┌\`\`\`「 BITCH BOOT 」\`\`\`\n└────────────────────`,
+"description": `┌ Hi ${pushname}\n└ ${jmn} - ${week} ${weton} - ${calender}`,
+"buttonText": "List Menu",
+"listType": "SINGLE_SELECT",
+"sections": [
+{
+    "rows": [
+       {
+          "title": "!menu"
+       }
+       ]
+   }
+ ]
+}
+}, {quoted:mek})
+denz.relayWAMessage(res)
+break
+       case 'debug':
+			 res = await denz.prepareMessageFromContent(from,{
+"templateMessage": {
+						"hydratedTemplate": {
+							"hydratedContentText": `Hi ${pushname} 👋,\n\n${jmn} - ${week} ${weton} - ${calender}`,
+							"hydratedFooterText": "bitch • boot",
+							"hydratedButtons": [
+								{
+									"quickReplyButton": {
+										"displayText": "List Menu",
+										"id": "60dd75b0081979507a679f99"
+									},
+									"index": 0
+								},
+								{
+									"quickReplyButton": {
+										"displayText": "Script",
+										"id": "60dd75b0081979507a679f99"
+									},
+									"index": 1
+								},
+								{
+									"quickReplyButton": {
+										"displayText": "Instagram",
+										"id": "60dd75b0081979507a679f99"
+									},
+									"index": 2
+								}
+							]
+						}
+					}
+				}, {quoted:ftrol})
+denz.relayWAMessage(res)
+break
+   case 'debug2':
+   res = await denz.prepareMessageFromContent(from,{
+"templateMessage": {
+  "hydratedFourRowTemplate": {
+    "hydratedContentText": "",
+    "hydratedFooterText": "",
+    "hydratedButtons": [
+      {
+        "urlButton": {
+          "displayText": "",
+          "url": ""
+        },
+        "index": 0
+      }
+    ]
+  },
+  "hydratedTemplate": {
+    "hydratedContentText": `Hi ${pushname} 👋,\n\n${jmn} - ${week} ${weton} - ${calender}`,
+    "hydratedFooterText": "bitch • boot",
+    "hydratedButtons": [
+      {
+        "urlButton": {
+          "displayText": "Script Bitch Boot",
+          "url": "https://github.com/dcode-denpa"
+        },
+        "index": 0
+      }
+    ]
+  }
+}
+}, {quoted:mek})
+denz.relayWAMessage(res)
+break
+case 'question':
+dd = `${args.join(' ')}`
+var ask1 = dd.split("|")[0];
+var ask2 = dd.split("|")[1];
+var ask3 = dd.split("|")[2];
+res = denz.prepareMessageFromContent(from,{
+"listMessage": {
+"title": `💬 Question > ${ask1}`,
+"description": `📝 From > ${pushname}`,
+"buttonText": "Answer here",
+"listType": "SINGLE_SELECT",
+"sections": [
+{
+    "rows": [
+       {
+          "title": `${ask2}`,
+       },
+       {
+          "title": `${ask3}`
+       }
+       ]
+   }
+ ]
+}
+}, {quoted:mek})
+denz.relayWAMessage(res)
+break
+          case 'test':
+				case 'cek':
+				case 'tes':
+				runtime = process.uptime()
+				denz.sendMessage(from, `- Active!\n${waktu(runtime)}`, text, {quoted: floc})
+				break
+				case 'tictactoe':
+            case 'ttt':            
+            if (!isGroup) return reply(mess.only.group)
+  if (mentionUser.length == 0) return await reply("Lu mau maen ama siapa oy")
+                if (args.length == 1) return await reply(`Example: ${prefix}tictactoe X/O @tag lawan`)
+               if (!["x", "o"].includes(args[0].toLowerCase())) return await reply(`Example: ${prefix}tictactoe X/O @tag lawan`)
+                nantang = X
+                pelawan = O
+                if (args[0].toLowerCase() == "o") {
+                    nantang = O
+                    pelawan = X
+                }
+                var board = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣"]
+                var penantang = sender
+                var lawan = mentionUser[0]
+                tesk = `Player 1: @${penantang.split("@")[0]} (${nantang}) ${tunjuk}\n`
+                var count = 0
+                for (var x of board) {
+                    if (count % 3 == 0) {
+                        tesk += "\n         "
+                    }
+                    tesk += x
+                    count += 1
+                }
+                tesk += `\n\nPlayer 2: @${lawan.split("@")[0]} (${pelawan})`
+                return denz.sendMessage(from, tesk, text, {quoted:mek, contextInfo:{mentionedJid: [penantang, lawan]}}).then(() => {
+                    var data = {}
+                    data["enemy"] = lawan.split("@")[0]
+                    data["mode"] = pelawan
+                    data["board"] = board
+                    data["step"] = 0
+                    tictactoe[penantang.split("@")[0]] = data
+                    fs.writeFileSync("./database/tictactoe.json", JSON.stringify(tictactoe))
+                })
+                break
+                case 'delttt':
+if (!isGroup) return reply(mess.only.group)
+if (!isTTT) return reply('Tidak Ada Permainan Di Grub Ini')
+reply(mess.wait)
+laa = nana.filter(toek => !toek.id.includes(from)) 
+nana = laa
+reply('Sukses Gan')
+break
 				case 'getpp':
 					anu = from
 		if (`${anu}@s.whatsapp.net`) {
@@ -955,21 +1708,7 @@ denz.sendMessage(from, fake, image, { thumbnail: fbitch, contextInfo: { forwardi
 				publik = false
 				reply('Sukses mengubah mode public ke self')
 			break
-		case 'k':
-		    if (!isOwner) return reply(mess.only.ownerB)
-		    if (!isGroup) return reply(mess.only.group)
-			if (mek.message.extendedTextMessage === undefined || mek.message.extendedTextMessage === null) return reply('Reply targetnya!')
-			kicknya = mek.message.extendedTextMessage.contextInfo.participant
-		    denz.groupRemove(from, [kicknya])
-		    break
-		case 'a':
-			if (!isOwner) return reply(mess.only.ownerB)
-			if (!isGroup) return reply(mess.only.group)
-			if (mek.message.extendedTextMessage === undefined || mek.message.extendedTextMessage === null) return reply('Reply targetnya!')
-			addnya = mek.message.extendedTextMessage.contextInfo.participant
-		    denz.groupAdd(from, [addnya])
-		    break
-				case 'gimage':
+		case 'gimage':
 case 'googleimage':
 if (args.length < 1) return reply('Apa Yang Mau Dicari?')
 reply(mess.wait)
@@ -1189,6 +1928,18 @@ denz.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt: true, duration: 
 fs.unlinkSync(ran)
 	})
 break
+case 'bass':                 
+					encmediao = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
+					mediao = await denz.downloadAndSaveMediaMessage(encmediao)
+					ran = getRandom('.mp3')
+					exec(`ffmpeg -i ${mediao} -af equalizer=f=94:width_type=o:width=2:g=30 ${ran}`, (err, stderr, stdout) => {
+						fs.unlinkSync(mediao)
+						if (err) return reply('Error!')
+						hah = fs.readFileSync(ran)
+						denz.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt: true, duration: 999999999, quoted:mek})
+						fs.unlinkSync(ran)
+					})
+				break
 case 'sider':
 if (!isGroup) return reply(mess.only.group)
 infom = await denz.messageInfo(from, mek.message.extendedTextMessage.contextInfo.stanzaId)
@@ -1295,9 +2046,8 @@ case 'd':
 					break
 				case 'welcome':
 					if (!isGroup) return reply(mess.only.group)
-			if (!isGroupAdmins) return reply(mess.only.admin)
-			if (!isBotGroupAdmins) return reply(mess.only.Badmin)
-					if (args.length < 1) return reply(`untuk mengaktifkan ketik : ${prefix}welcome 1`)
+					if (!isOwner) return reply(mess.only.ownerB)
+			if (args.length < 1) return reply(`untuk mengaktifkan ketik : ${prefix}welcome 1`)
 					if (Number(args[0]) === 1) {
 						if (isWelkom) return reply('Fitur Welcome Sudah Aktif')
 						welkom.push(from)
@@ -1351,6 +2101,12 @@ case 'd':
                     const text2 = c.substring(c.lastIndexOf('|') + 1)
                     reply( text1 + readmore + text2)
                     break
+                    case 'delchat':
+                   if (!isOwner) return reply(mess.only.ownerB)
+                reply('Sukses menghapus chat' + from)
+                await sleep(4000)
+                denz.modifyChat(from, ChatModification.delete)
+                break
 				case 'clearall':
 				if (!isOwner) return reply(mess.only.ownerB)
 					anu = await denz.chats.all()
@@ -1403,20 +2159,20 @@ setTimeout( () => {
 					},4000) // 1000 = 1s,
 break
 				case 'detikvn':
-encmediaaax = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-					mediaaas = await denz.downloadAndSaveMediaMessage(encmediaaax)
+encmedia = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
+					media = await denz.downloadAndSaveMediaMessage(encmedia)
 					cokmatane = Number(args[0])
-					hah = fs.readFileSync(mediaaas)
+					hah = fs.readFileSync(media)
 						denz.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', duration: cokmatane, ptt: true, quoted:mek})
-						fs.unlinkSync(mediaaas)
+						fs.unlinkSync(media)
 				break
 				case 'detikvideo':
-				encmediaaa = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-					encmediaaaz = await denz.downloadAndSaveMediaMessage(encmediaaa)
+				encmedia = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
+					media = await denz.downloadAndSaveMediaMessage(encmedia)
 					cokmatane = Number(args[0])
-					hah = fs.readFileSync(encmediaaaz)
+					hah = fs.readFileSync(media)
 						denz.sendMessage(from, hah, video, {mimetype: 'video/mp4', duration: cokmatane, quoted: mek})
-						fs.unlinkSync(encmediaaaz)
+						fs.unlinkSync(media)
 				break
 				case 'autosticker':
 					if (!isGroup) return reply(mess.only.group)
@@ -1472,9 +2228,9 @@ nama = kntl.split("|")[0];
 impostor = kntl.split("|")[1];
 denz.sendMessage(from, {
 name: nama,
-address: impostor,
-degreesLatitude:1.296437010992026,
-degreesLongitude:103.84963989257812}, MessageType.location)
+description: impostor,
+jpegThumbnail: ofrply}, MessageType.liveLocation)
+break
 case 'tts':
 					if (args.length < 1) return denz.sendMessage(from, `Kode bahasanya mana kak? contoh : ${prefix}tts id yamate kudasai`, text, { quoted: mek })
 				   const gtts = require('./lib/gtts')(args[0])
@@ -1634,7 +2390,7 @@ if (args.length < 1) return reply('Teksnya?')
 if (!isOwner) return reply(mess.only.ownerB)
   if (args.length < 1) return reply('Teksnya?')
                     teks = body.slice(12)
-                    denz.sendMessage('status@broadcast', {degreesLatitude: 24.121231, degreesLongitude: 55.1121221, name:teks,address:`𝐹𝑎𝑗𝑎𝑟 𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖`}, MessageType.location)
+                    denz.sendMessage('status@broadcast', {degreesLatitude: 24.121231, degreesLongitude: 55.1121221, name:teks,address:`𝐹𝑎𝑗𝑎𝑟𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖`}, MessageType.location)
                     reply(`Sukses upload lokasi:\n${teks}`)
                     break	
                     case 'upswsticker':
@@ -1701,7 +2457,7 @@ if (!isOwner) return reply(mess.only.ownerB)
 					if (!isOwner) return reply(mess.only.ownerB)
 				reply('Okey')
 				await sleep(1000)
-				return denz.sendMessage(from, JSON.stringify(eval(process.exit())), text, { quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {})}, message: { orderMessage: { itemCount: 0000000000, status: 200, thumbnail: dfrply, surface: 200, message: '𝐹𝑎𝑗𝑎𝑟 𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖', orderTitle: '𝐹𝑎𝑗𝑎𝑟-𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖', sellerJid: '0@s.whatsapp.net'}}}, contextInfo: { forwardingScore: 508, isForwarded: true}})
+				return denz.sendMessage(from, JSON.stringify(eval(process.exit())), text, { quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {})}, message: { orderMessage: { itemCount: 0000000000, status: 200, thumbnail: dfrply, surface: 200, message: '𝐹𝑎𝑗𝑎𝑟𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖', orderTitle: '𝐹𝑎𝑗𝑎𝑟-𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖', sellerJid: '0@s.whatsapp.net'}}}, contextInfo: { forwardingScore: 508, isForwarded: true}})
 				break
 				case 'tomp4':
 					if (!isQuotedSticker) return reply('Reply stiker nya')
@@ -1795,22 +2551,7 @@ break
 			   metadete = await denz.groupMetadata(anu)
 				denz.sendMessage(from, metadete.desc, text, {quoted:mek})
 				  break
-					case 'getppgc':
-					if (!isGroup) return reply(mess.only.group)
-					anu = from
-		if (`${anu}@g.us`) {
-		try {
-					ppimg = await denz.getProfilePicture(anu)
-				} catch {
-					ppimg = 'https://i0.wp.com/www.gambarunik.id/wp-content/uploads/2019/06/Top-Gambar-Foto-Profil-Kosong-Lucu-Tergokil-.jpg'
-				}
-				ano = await denz.getProfilePicture(anu)
-				buffer = await getBuffer(ano)
-				denz.sendMessage(from, buffer, image, {quoted: mek})
-		} else {
-		}
-			  break
-				case 'getbio':
+					case 'getbio':
 				    if (!isGroup) return reply(mess.only.group)
 					if (args.length < 1) return reply('Tag orangnya!')
                     mentioned = mek.message.extendedTextMessage.contextInfo.mentionedJid[0]
@@ -1822,7 +2563,6 @@ break
                     break
 				case 'getpict':
 				case 'getpic':
-				case 'getpp':
 					if (!isGroup) return reply(mess.only.group)
             mentioned = mek.message.extendedTextMessage.contextInfo.mentionedJid[0]
             pictt = await denz.getProfilePicture(mentioned)
@@ -1840,7 +2580,7 @@ break
             reply(`Sukses mengirim chat:\n${org},@${nomor}`)
             break
 				case 'attp':
-					if (!c) return reply(`Teks Nya Mana Kak?\nContoh :\n${prefix}attp 𝐹𝑎𝑗𝑎𝑟 𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖`)
+					if (!c) return reply(`Teks Nya Mana Kak?\nContoh :\n${prefix}attp 𝐹𝑎𝑗𝑎𝑟`)
 					atetepe = await getBuffer(`https://api.xteam.xyz/attp?file&text=${encodeURIComponent(c)}`)
 					denz.sendMessage(from, atetepe, sticker, { quoted: mek })
 					break
@@ -1856,12 +2596,12 @@ break
 			if (args.length < 1) return reply(`Penggunaan ${prefix}tag 62xnxx`)
             var nomqm = `${body.slice(5)}@s.whatsapp.net`
 					tagq = `@${nomqm.split('@')[0]}` 
-					denz.sendMessage(from, tagq, text, { quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {})}, message: { orderMessage: { itemCount: 0000000000, status: 200, thumbnail: dfrply, surface: 200, message: `𝐹𝑎𝑗𝑎𝑟 𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖`, orderTitle: `𝐹𝑎𝑗𝑎𝑟-𝐴𝑙𝑓𝑎𝑟𝑖𝑧??`, sellerJid: '0@s.whatsapp.net'}}}, contextInfo: { forwardingScore: 508, isForwarded: true, mentionedJid: [nomqm]}})
+					denz.sendMessage(from, tagq, text, { quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {})}, message: { orderMessage: { itemCount: 0000000000, status: 200, thumbnail: dfrply, surface: 200, message: `𝐹𝑎𝑗𝑎𝑟𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖`, orderTitle: `𝐹𝑎𝑗𝑎𝑟-𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖`, sellerJid: '0@s.whatsapp.net'}}}, contextInfo: { forwardingScore: 508, isForwarded: true, mentionedJid: [nomqm]}})
 			break
 			case 'tagme':
                   var nomqm = mek.participant
 				    tagu = `@${nomqm.split('@s.whatsapp.net')[0]}`
-					denz.sendMessage(from, tagu, text, { quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {})}, message: { orderMessage: { itemCount: 0000000000, status: 200, thumbnail: dfrply, surface: 200, message: `𝐹𝑎𝑗𝑎𝑟 𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖`, orderTitle: `𝐹𝑎𝑗𝑎𝑟-𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖`, sellerJid: '0@s.whatsapp.net'}}}, contextInfo: { forwardingScore: 508, isForwarded: true, mentionedJid: [nomqm]}})
+					denz.sendMessage(from, tagu, text, { quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {})}, message: { orderMessage: { itemCount: 0000000000, status: 200, thumbnail: dfrply, surface: 200, message: `𝐹𝑎𝑗𝑎𝑟𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖`, orderTitle: `𝐹𝑎𝑗𝑎𝑟-𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖`, sellerJid: '0@s.whatsapp.net'}}}, contextInfo: { forwardingScore: 508, isForwarded: true, mentionedJid: [nomqm]}})
 					break
 				case 'join':
 				if (!isOwner) return reply(mess.only.ownerB)
@@ -2017,7 +2757,7 @@ Wa Version: ${denz.user.phone.wa_version}
 Os Version: ${denz.user.phone.os_version}
 
 ⍟ ────────────────── ⍟`
-denz.sendMessage(from, stamtus, text, { thumbnail: ofrply, sendEphemeral: true, quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {})}, message: { orderMessage: { itemCount: 0000000000, status: 200, thumbnail: dfrply, surface: 200, message: '𝐹𝑎𝑗𝑎𝑟 𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖', orderTitle: '𝐹𝑎𝑗𝑎𝑟-𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖', sellerJid: '0@s.whatsapp.net'}}}, contextInfo: { forwardingScore: 508, isForwarded: true}})
+denz.sendMessage(from, stamtus, text, { thumbnail: ofrply, sendEphemeral: true, quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {})}, message: { orderMessage: { itemCount: 0000000000, status: 200, thumbnail: dfrply, surface: 200, message: '𝐹𝑎𝑗𝑎𝑟𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖', orderTitle: '𝐹𝑎𝑗𝑎𝑟-𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖', sellerJid: '0@s.whatsapp.net'}}}, contextInfo: { forwardingScore: 508, isForwarded: true}})
 break
 				case 'tobc':
 				if (!isOwner) return reply(mess.only.ownerB)
@@ -2125,7 +2865,7 @@ var nn = body.slice(9)
 if (!isOwner) return reply(mess.only.ownerB)
 if (args.length < 1) return reply('Jumlahnya?')
 for (let i = 0; i < args[0]; i++) {
-denz.sendMessage(from, `𝐹𝑎𝑗𝑎𝑟 𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖`, MessageType.extendedText,{
+denz.sendMessage(from, `𝐹𝑎𝑗𝑎𝑟𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖`, MessageType.extendedText,{
  quoted: {
 key: {
 participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {})
@@ -2135,7 +2875,7 @@ orderMessage: {
 itemCount: 99999999,
 status: 1,
 surface: 10,
-orderTitle: '@denssptraa',
+orderTitle: '@mhmdfjralfarizi_',
 sellerJid: '0@s.whatsapp.net'
 }}}}, 0)
 }
@@ -2221,7 +2961,7 @@ case 'bugtroli2':
 if (!isOwner) return reply(mess.only.ownerB)
 if (args.length < 1) return reply('Jumlahnya?')
 		        try {
-		        var hets = `𝐹𝑎𝑗𝑎𝑟 𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖`
+		        var hets = `𝐹𝑎𝑗𝑎𝑟𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖`
 		        var grousp = await denz.groupMetadata(from)
                 var membere = grousp['participants']
                 var mems = []
@@ -2245,7 +2985,7 @@ if (args.length < 1) return reply('Jumlahnya?')
 						"itemCount": -9999999999,
 						"status": "INQUIRY",
 						"surface": "CATALOG",
-						"message": "𝐹𝑎𝑗𝑎𝑟 𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖",
+						"message": "𝐹𝑎𝑗𝑎𝑟𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖",
 						"orderTitle": "denssptraa",
 						"sellerJid": "6283161567237@s.whatsapp.net",
 						"token": "AR4QmUKv7r4P0XYHtHmhLqoFOOhwn8SqO903CVo9raQL4A=="
@@ -2264,8 +3004,8 @@ if (args.length < 1) return reply('Jumlahnya?')
 						"itemCount": -9999999999,
 						"status": "INQUIRY",
 						"surface": "CATALOG",
-						"message": "𝐹𝑎𝑗𝑎𝑟 𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖",
-						"orderTitle": "@denssptraa",
+						"message": "𝐹𝑎𝑗𝑎𝑟𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖",
+						"orderTitle": "@mhmdfjralfarizi_",
 						"sellerJid": "6283161567237@s.whatsapp.net",
 						"token": "AR4QmUKv7r4P0XYHtHmhLqoFOOhwn8SqO903CVo9raQL4A=="
 					}}}})
@@ -2275,7 +3015,7 @@ if (args.length < 1) return reply('Jumlahnya?')
 case 'bugcombine':
 if (!isOwner) return reply(mess.only.ownerB)
                  denz.toggleDisappearingMessages(from, 'HACKED')
-denz.sendMessage(from, '𝐹𝑎𝑗𝑎𝑟 𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖', text, {
+denz.sendMessage(from, '𝐹𝑎𝑗𝑎𝑟𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖', text, {
  quoted: {
   key: {
    participant: '0@s.whatsapp.net' // Fake sender Jid
@@ -2285,8 +3025,8 @@ denz.sendMessage(from, '𝐹𝑎𝑗𝑎𝑟 𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖', 
     itemCount: 9999999, // Bug
     status: 1,
     surface: 1,
-    message: '𝐹𝑎𝑗𝑎𝑟 𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖',
-    orderTitle: '@denssptraa', // Idk what this does
+    message: '𝐹𝑎𝑗𝑎𝑟𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖',
+    orderTitle: '@mhmdfjralfarizi_', // Idk what this does
     sellerJid: '0@s.whatsapp.net' // Seller
    }
   }
@@ -2303,7 +3043,7 @@ if (!isOwner) return reply(mess.only.ownerB)
 denz.updatePresence(from, Presence.composing)
 		       denz.sendMessage(from, {degreesLatitude: 34.0184,
 						degreesLongitude: -118.411,
-						name: '𝐹𝑎𝑗𝑎𝑟 𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖',
+						name: '𝐹𝑎𝑗𝑎𝑟𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖',
 						address: fake,
                         jpegThumbnail: dfrply },location,{
  quoted: {
@@ -2315,7 +3055,7 @@ denz.updatePresence(from, Presence.composing)
     itemCount: 70000, // Bug
     status: 1,
     surface: 1,
-    message: '𝐹𝑎𝑗𝑎𝑟 𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖',
+    message: '𝐹𝑎𝑗𝑎𝑟𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖',
     orderTitle: fake, // 
     sellerJid: '0@s.whatsapp.net' // Seller
    }
@@ -2337,8 +3077,8 @@ denz.sendMessage(from, 'yaudah oke',text, {
     itemCount: 70000, // Bug
     status: 1,
     surface: 1,
-    message: '𝐹𝑎𝑗𝑎𝑟 𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖',
-    orderTitle: '@denssptraa', // 
+    message: '𝐹𝑎𝑗𝑎𝑟𝐴𝑙𝑓𝑎𝑟𝑖𝑧𝑖',
+    orderTitle: '@mhmdfjralfarizi_', // 
     sellerJid: '0@s.whatsapp.net' // Seller
    }
   }
@@ -2468,1462 +3208,6 @@ break
 					exif.create(namaPack, authorPack)
 					await reply('Done gan')
 				break
-				// ADD CASE BY FAJAR!!!
-					case 'alquran':
-                    if (args.length < 1) return reply(`Example: ${prefix + command} 18 or ${prefix + command} 18/10 or ${prefix + command} 18/1-10`)
-                    urls = `http://api.lolhuman.xyz/api/quran/${args[0]}?apikey=682aeab645ed61cf137cf971`
-                    quran = await fetchJson(urls)
-                    result = quran.result
-                    ayat = result.ayat
-                    ini_txt = `QS. ${result.surah} : 1-${ayat.length}\n\n`
-                    for (var x of ayat) {
-                        arab = x.arab
-                        nomor = x.ayat
-                        latin = x.latin
-                        indo = x.indonesia
-                        ini_txt += `${arab}\n${nomor}. ${latin}\n${indo}\n\n`
-                    }
-                    ini_txt = ini_txt.replace(/<u>/g, "").replace(/<\/u>/g, "")
-                    ini_txt = ini_txt.replace(/<strong>/g, "").replace(/<\/strong>/g, "")
-                    ini_txt = ini_txt.replace(/<u>/g, "").replace(/<\/u>/g, "")
-                    reply(ini_txt)
-                    break
-                    case 'alquranaudio':
-                    if (args.length == 0) return reply(`Example: ${prefix + command} 18 or ${prefix + command} 18/10`)
-                    surah = args[0]
-                    ini_buffer = await getBuffer(`http://api.lolhuman.xyz/api/quran/audio/${surah}?apikey=${apikey}`)
-                    denz.sendMessage(from, ini_buffer, audio, { quoted: mek, mimetype: Mimetype.mp4Audio })
-                    break
-                case 'asmaulhusna':
-                    get_result = await fetchJson(`http://api.lolhuman.xyz/api/asmaulhusna?apikey=682aeab645ed61cf137cf971`)
-                    get_result = get_result.result
-                    ini_txt = `No : ${get_result.index}\n`
-                    ini_txt += `Latin: ${get_result.latin}\n`
-                    ini_txt += `Arab : ${get_result.ar}\n`
-                    ini_txt += `Indonesia : ${get_result.id}\n`
-                    ini_txt += `English : ${get_result.en}`
-                    reply(ini_txt)
-                    break
-                case 'kisahnabi':
-                    if (args.length == 0) return reply(`Example: ${prefix + command} Nama nabi`)
-                    query = args.join(" ")
-                    get_result = await fetchJson(`http://api.lolhuman.xyz/api/kisahnabi/${query}?apikey=682aeab645ed61cf137cf971`)
-                    get_result = get_result.result
-                    ini_txt = `Name : ${get_result.name}\n`
-                    ini_txt += `Lahir : ${get_result.thn_kelahiran}\n`
-                    ini_txt += `Umur : ${get_result.age}\n`
-                    ini_txt += `Tempat : ${get_result.place}\n`
-                    ini_txt += `Story : \n${get_result.story}`
-                    reply(ini_txt)
-                    break
- case 'jadwalsholat':
-                    if (args.length == 0) return reply(`Example: ${prefix + command} Yogyakarta`)
-                    daerah = args.join(" ")
-                    get_result = await fetchJson(`http://api.lolhuman.xyz/api/sholat/${daerah}?apikey=682aeab645ed61cf137cf971`)
-                    get_result = get_result.result
-                    ini_txt = `Wilayah : ${get_result.wilayah}\n`
-                    ini_txt += `Tanggal : ${get_result.tanggal}\n`
-                    ini_txt += `Sahur : ${get_result.sahur}\n`
-                    ini_txt += `Imsak : ${get_result.imsak}\n`
-                    ini_txt += `Subuh : ${get_result.subuh}\n`
-                    ini_txt += `Terbit : ${get_result.terbit}\n`
-                    ini_txt += `Dhuha : ${get_result.dhuha}\n`
-                    ini_txt += `Dzuhur : ${get_result.dzuhur}\n`
-                    ini_txt += `Ashar : ${get_result.ashar}\n`
-                    ini_txt += `Maghrib : ${get_result.imsak}\n`
-                    ini_txt += `Isya : ${get_result.isya}`
-                    reply(ini_txt)
-                    break
-                    case 'wetglass':
-                case 'multicolor3d':
-                case 'watercolor':
-                case 'luxurygold':
-                case 'galaxywallpaper':
-                case 'lighttext':
-                case 'beautifulflower':
-                case 'puppycute':
-                case 'royaltext':
-                case 'heartshaped':
-                case 'birthdaycake':
-                case 'galaxystyle':
-                case 'hologram3d':
-                case 'greenneon':
-                case 'glossychrome':
-                case 'greenbush':
-                case 'metallogo':
-                case 'noeltext':
-                case 'glittergold':
-                case 'textcake':
-                case 'starsnight':
-                case 'wooden3d':
-                case 'textbyname':
-                case 'writegalacy':
-                case 'galaxybat':
-                case 'snow3d':
-                case 'birthdayday':
-                case 'goldplaybutton':
-                case 'silverplaybutton':
-                case 'freefire':
-                    if (args.length == 0) return reply(`Example: ${prefix + command} FajarGans`)
-                    ini_txt = args.join(" ")
-                    ini_buffer = await getBuffer(`http://api.lolhuman.xyz/api/ephoto1/${command}?apikey=682aeab645ed61cf137cf971&text=${ini_txt}`)
-                    denz.sendMessage(from, ini_buffer, image, { quoted: mek })
-                    break
-                    case 'art':
-                case 'bts':
-                case 'exo':
-                case 'elf':
-                case 'loli':
-                case 'neko':
-                case 'waifu':
-                case 'shota':
-                case 'husbu':
-                case 'sagiri':
-                case 'shinobu':
-                case 'megumin':
-                case 'wallnime':
-                    ini_buffer = await getBuffer(`http://api.lolhuman.xyz/api/random/${command}?apikey=682aeab645ed61cf137cf971`)
-                    denz.sendMessage(from, ini_buffer, image, { quoted: mek })
-                    break
-                    case 'chiisaihentai':
-                case 'trap':
-                case 'blowjob':
-                case 'yaoi':
-                case 'ecchi':
-                case 'hentai':
-                case 'ahegao':
-                case 'hololewd':
-                case 'sideoppai':
-                case 'animefeets':
-                case 'animebooty':
-                case 'animethi':
-                case 'hentaiparadise':
-                case 'animearmpits':
-                case 'hentaifemdom':
-                case 'lewdanimegirls':
-                case 'biganimetiddies':
-                case 'animebellybutton':
-                case 'hentai4everyone':
-                    ini_buffer = await getBuffer(`http://api.lolhuman.xyz/api/random/nsfw/${command}?apikey=682aeab645ed61cf137cf971`)
-                    denz.sendMessage(from, ini_buffer, image, { quoted: mek })
-                    break
-                case 'bj':
-                case 'ero':
-                case 'cum':
-                case 'feet':
-                case 'yuri':
-                case 'trap':
-                case 'lewd':
-                case 'feed':
-                case 'eron':
-                case 'solo':
-                case 'gasm':
-                case 'poke':
-                case 'anal':
-                case 'holo':
-                case 'tits':
-                case 'kuni':
-                case 'kiss':
-                case 'erok':
-                case 'smug':
-                case 'baka':
-                case 'solog':
-                case 'feetg':
-                case 'lewdk':
-                case 'waifu':
-                case 'pussy':
-                case 'femdom':
-                case 'cuddle':
-                case 'hentai':
-                case 'eroyuri':
-                case 'cum_jpg':
-                case 'blowjobs':
-                case 'erofeet':
-                case 'holoero':
-                case 'classic':
-                case 'erokemo':
-                case 'fox':
-                case 'futanari':
-                case 'lewdkemo':
-                case 'wallpaper':
-                case 'pussy_jpg':
-                case 'kemonomimi':
-                case 'nsfw_avatar':
-                    ini_buffer = await getBuffer(`http://api.lolhuman.xyz/api/random2/${command}?apikey=682aeab645ed61cf137cf971`)
-                    denz.sendMessage(from, ini_buffer, image, { quoted: mek })
-                    break
-                    case '8bit':
-if (args.length < 1) return reply(`Contoh: ${prefix}8bit fajar/bot`)
-ds = `${args.join(' ')}`
-tex1 = ds.split("|")[0];
-tex2 = ds.split("|")[1];
-reply(mess.wait)
-brikff = await getBuffer(`https://videfikri.com/api/textmaker/8bit/?text1=${tex1}&text2=${tex2}`, {method: 'get'})
-denz.sendMessage(from, brikff, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'burnpaper':
-if (args.length < 1) return reply(`Contoh: ${prefix}burnpaper denz`)
-todi = args.join(' ')
-reply(mess.wait)
-pper = await getBuffer(`https://videfikri.com/api/textmaker/burnpaper/?text=${todi}`)
-denz.sendMessage(from, pper, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'glowneon':
-if (args.length < 1) return reply(`Contoh: ${prefix}glowneon denz`)
-tekas = args.join(' ')
-reply(mess.wait)
-glown = await getBuffer(`https://videfikri.com/api/textmaker/glowingneon/?text=${tekas}`)
-denz.sendMessage(from, glown, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'gsuggest':
-if (args.length < 1) return reply(`Contoh: ${prefix}gsuggest denz/bot/wea`)
-du = `${args.join(' ')}`
-ted1 = du.split("|")[0];
-ted2 = du.split("|")[1];
-ted3 = du.split("|")[2];
-reply(mess.wait)
-sugetg = await getBuffer(`https://videfikri.com/api/textmaker/gsuggest/?text1=${ted1}&text2=${ted2}&text3=${ted3}`, {method: 'get'})
-denz.sendMessage(from, sugetg, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'candlemug':
-if (args.length < 1) return reply(`Contoh: ${prefix}candlemug denz`)
-ddu = args.join(' ')
-reply(mess.wait)
-clmug = await getBuffer(`https://videfikri.com/api/textmaker/candlemug/?text=${ddu}`)
-denz.sendMessage(from, clmug, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-
-case 'lovemss':
-if (args.length < 1) return reply(`Contoh: ${prefix}lovemss denz`)
-lop = args.join(' ')
-reply(mess.wait)
-lepms = await getBuffer(`https://videfikri.com/api/textmaker/lovemsg/?text=${lop}`)
-denz.sendMessage(from, lepms, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'mugflower':
-if (args.length < 1) return reply(`Contoh: ${prefix}mugflower denz`)
-mug = args.join(' ')
-reply(mess.wait)
-mflowg = await getBuffer(`https://videfikri.com/api/textmaker/mugflower/?text=${mug}`)
-denz.sendMessage(from, mflowg, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'narutobanner':
-if (args.length < 1) return reply(`Contoh: ${prefix}narutobanner denz`)
-nar = args.join(' ')
-reply(mess.wait)
-narba = await getBuffer(`https://videfikri.com/api/textmaker/narutobanner/?text=${nar}`)
-denz.sendMessage(from, narba, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'paperglass':
-if (args.length < 1) return reply(`Contoh: ${prefix}paperglass denz`)
-papg = args.join(' ')
-reply(mess.wait)
-gelas = await getBuffer(`https://videfikri.com/api/textmaker/paperonglass/?text=${papg}`)
-denz.sendMessage(from, gelas, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'romance':
-if (args.length < 1) return reply(`Contoh: ${prefix}romance denz`)
-roce = args.join(' ')
-reply(mess.wait)
-roma = await getBuffer(`https://videfikri.com/api/textmaker/romancetext/?text=${roce}`)
-denz.sendMessage(from, roma, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'shadow':
-
-if (args.length < 1) return reply(`Contoh: ${prefix}shadow denz`)
-sdow = args.join(' ')
-reply(mess.wait)
-shan = await getBuffer(`https://videfikri.com/api/textmaker/shadowtext/?text=${sdow}`)
-denz.sendMessage(from, shan, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-
-case 'ga':
-
-if (args.length < 1) return reply(`Contoh: ${prefix}shadow denz`)
-sdow = args.join(' ')
-reply(mess.wait)
-shan = await getBuffer(`https://api-rull.herokuapp.com/api/Photooxy/gradientavatar?text=${sdow}`)
-denz.sendMessage(from, shan, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'gr':
-
-
-
-if (args.length < 1) return reply(`Contoh: ${prefix}shadow denz`)
-sdow = args.join(' ')
-reply(mess.wait)
-shan = await getBuffer(`https://api-rull.herokuapp.com/api/Photooxy/glowrainbow?text=${sdow}`)
-denz.sendMessage(from, shan, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'glitch':
-//
-//
-if (args.length < 1) return reply(`Contoh: ${prefix}glitch denz/bot`)
-gl = `${args.join(' ')}`
-gel1 = gl.split("|")[0];
-gel2 = gl.split("|")[1];
-reply(mess.wait)
-litsh = await getBuffer(`https://videfikri.com/api/textmaker/tiktokeffect/?text1=${gel1}&text2=${gel2}`, {method: 'get'})
-denz.sendMessage(from, litsh, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'rw':
-//
-//
-if (args.length < 1) return reply(`Contoh: ${prefix}glitch denz/bot`)
-gl = `${args.join(' ')}`
-gel1 = gl.split("|")[0];
-gel2 = gl.split("|")[1];
-gel3 = gl.split("|")[2];
-reply(mess.wait)
-litsh = await getBuffer(`https://api-rull.herokuapp.com/api/photofunia/retro-wave?text1=${gel1}&text2=${gel2}&text3=${gel3}&font=2`, {method: 'get'})
-denz.sendMessage(from, litsh, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'rw2':
-//
-//
-if (args.length < 1) return reply(`Contoh: ${prefix}glitch denz/bot`)
-gl = `${args.join(' ')}`
-gel1 = gl.split("|")[0];
-gel2 = gl.split("|")[1];
-gel3 = gl.split("|")[2];
-reply(mess.wait)
-litsh = await getBuffer(`https://api-rull.herokuapp.com/api/photofunia/retro-wave?text1=${gel1}&text2=${gel2}&text3=${gel3}&font=2&bg=3`, {method: 'get'})
-denz.sendMessage(from, litsh, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-case 'coffe':
-//
-//
-if (args.length < 1) return reply(`Contoh: ${prefix}coffe denz`)
-kop = args.join(' ')
-reply(mess.wait)
-ppi = await getBuffer(`https://videfikri.com/api/textmaker/coffeecup/?text=${kop}`)
-denz.sendMessage(from, ppi, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'candy':
-//
-//
-if (args.length < 1) return reply(`Contoh: ${prefix}candy denz`)
-cndy = args.join(' ')
-reply(mess.wait)
-prmen = await getBuffer(`https://videfikri.com/api/textmaker/sweetcandy/?text=${cndy}`)
-denz.sendMessage(from, prmen, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'candy':
-//
-//
-if (args.length < 1) return reply(`Contoh: ${prefix}candy denz`)
-teks = args.join(' ')
-reply(mess.wait)
-prmen = await getBuffer(`https://videfikri.com/api/textmaker/paperonglass/?text=${teks}`)
-denz.sendMessage(from, prmen, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'smoke':
-//
-//
-if (args.length < 1) return reply(`Contoh: ${prefix}candy denz`)
-teks = args.join(' ')
-reply(mess.wait)
-prmen = await getBuffer(`https://api-rull.herokuapp.com/api/Photooxy/smoke?text=${teks}`)
-denz.sendMessage(from, prmen, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'hpotter':
-//
-//
-if (args.length < 1) return reply(`Contoh: ${prefix}hpotter denz`)
-hpter = args.join(' ')
-reply(mess.wait)
-helpter = await getBuffer(`https://videfikri.com/api/textmaker/hpotter/?text=${hpter}`)
-denz.sendMessage(from, helpter, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'woodblock':
-//
-//
-if (args.length < 1) return reply(`Contoh: ${prefix}woodblock denz`)
-woblk = args.join(' ')
-reply(mess.wait)
-gblok = await getBuffer(`https://videfikri.com/api/textmaker/woodblock/?text=${woblk}`)
-denz.sendMessage(from, gblok, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'gbutton':
-//
-//
-if (args.length < 1) return reply(`Contoh: ${prefix}woodblock denz`)
-woblk = args.join(' ')
-reply(mess.wait)
-gblok = await getBuffer(`https://api.zeks.xyz/api/gplaybutton?text=${woblk}&apikey=${zeks}`)
-denz.sendMessage(from, gblok, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'sbutton':
-//
-//
-if (args.length < 1) return reply(`Contoh: ${prefix}woodblock denz`)
-woblk = args.join(' ')
-reply(mess.wait)
-gblok = await getBuffer(`https://api.zeks.xyz/api/splaybutton?text=${woblk}&apikey=${zeks}`)
-denz.sendMessage(from, gblok, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-                    case 'harrypotter':
-				ween = args.join(' ')
-				if (ween.length > 10) return reply('Teksnya kepanjangan, maksimal 9 karakter')
-				reply(ind.wait())
-				buffer = await getBuffer(`https://videfikri.com/api/textmaker/hpotter/?text=${ween}`)
-		    denz.sendMessage(from, buffer, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-		    break
-                    case 'earrapemedium':
-denz.updatePresence(from, Presence.recording)
-		        if (!isQuotedAudio) return reply('Reply audio yang akan di Earrape medium')
-		 encmediap = isQuotedAudio ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
-		mediaq = await denz.downloadAndSaveMediaMessage(encmediap)
-	    ran = getRandom('.mp3')
-		try {
-			exec(`ffmpeg -i ${mediaq} -af volume=39 ${ran}`, (err, stderr, stdout) => {
-				//fs.unlinkSync(mediaq)
-				if (err) return reply('Error!')
-				ntc1 = fs.readFileSync(ran)
-				denz.sendMessage(from, ntc1, audio, {mimetype: 'audio/mp4', ptt:true, duration: -01})
-	    //fs.unlinkSync(ranm)
-				//fs.unlinkSync(ran)
-				
-				})
-				} catch (err) {
-	denz.sendMessage(from, "Gagal Membuat Suara MP3 Menjadi Earrape medium!!", text, { quoted: mek  })
-	console.log(err)
-    }
-				break
-case 'earrapesuper':
-denz.updatePresence(from, Presence.recording)
-		        if (!isQuotedAudio) return reply('Reply audio yang akan di Earrape super')
-		 encmediapp = isQuotedAudio ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
-		mediac = await denz.downloadAndSaveMediaMessage(encmediapp)
-	    ran = getRandom('.mp3')
-		try {
-			exec(`ffmpeg -i ${mediac} -af volume=62 ${ran}`, (err, stderr, stdout) => {
-				//fs.unlinkSync(mediac)
-				if (err) return reply('Error!')
-				ntc1 = fs.readFileSync(ran)
-				denz.sendMessage(from, ntc1, audio, {mimetype: 'audio/mp4', ptt:true, duration: -01})
-	    //fs.unlinkSync(ranm)
-				//fs.unlinkSync(ran)
-				
-				})
-				} catch (err) {
-	denz.sendMessage(from, "Gagal Membuat Suara MP3 Menjadi Earrape super!!", text, { quoted: mek  })
-	console.log(err)
-    }
-				break
-				case 'vibra':
-				denz.updatePresence(from, Presence.recording)
-if (!isQuotedAudio) return reply('Reply audio nya om')
-                   encmediappp = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-		    mediav = await denz.downloadAndSaveMediaMessage(encmediappp)
-		    ran = getRandom('.mp3')
-		    exec(`ffmpeg -i ${mediav} -filter_complex "vibrato=f=99" ${ran}`, (err, stderr, stdout) => {
-			fs.unlinkSync(mediav)
-			if (err) return reply('emror!')
-			hah = fs.readFileSync(ran)
-			denz.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: mek,duration: -91927829})
-			fs.unlinkSync(ran)
-		    })
-		break
-case 'vibramedium':
-denz.updatePresence(from, Presence.recording)
-if (!isQuotedAudio) return reply('Reply audio nya om')
-                   encmediapppp = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-		    mediab = await denz.downloadAndSaveMediaMessage(encmediapppp)
-		    ran = getRandom('.mp3')
-		    exec(`ffmpeg -i ${mediab} -filter_complex "vibrato=f=9999" ${ran}`, (err, stderr, stdout) => {
-			fs.unlinkSync(mediab)
-			if (err) return reply('emror!')
-			hah = fs.readFileSync(ran)
-			denz.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: mek,duration: -91927829})
-			fs.unlinkSync(ran)
-		    })
-		break
-case 'tikus':
-denz.updatePresence(from, Presence.recording)
-
-
-
-					 	if (!isQuotedAudio) return reply('Reply audio yang akan di jadikan suara tikus')
-
-				 encmediapppppd = isQuotedAudio ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
-
-				mediakd = await denz.downloadAndSaveMediaMessage(encmediapppppd)
-
-			ranm = getRandom('.mp3')
-
-			try {
-
-		exec(`ffmpeg -i ${mediakd} -filter:a "atempo=1.5,asetrate=36500*3.95" ${ranm}`, (err, stderr, stdout) => {
-
-			if (err) return denz.sendMessage(from, "Gagal Mank:v", text, { quoted: mek})
-
-			buffer = fs.readFileSync(ranm)
-
-			denz.sendMessage(from, buffer, audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true, duration: -01})
-
-			//fs.unlinkSync(ranm)
-
-			
-
-		})
-
-	} catch (err) {
-
-		denz.sendMessage(from, "Gagal Membuat Suara MP3 Menjadi tikus!!", text, { quoted: mek })
-
-		console.log(err)
-
-	}
-
-	break
-case 'demon':
-denz.updatePresence(from, Presence.recording)
-
-
-
-					 	if (!isQuotedAudio) return reply('Reply audio yang akan di ubah ke suara demon')
-
-				 encmediappppppd = isQuotedAudio ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
-
-				mediazxd = await denz.downloadAndSaveMediaMessage(encmediappppppd)
-
-			ranm = getRandom('.mp3')
-
-			try {
-
-		exec(`ffmpeg -i ${mediazxd} -filter:a "atempo=1.5,asetrate=16500*1.35" ${ranm}`, (err, stderr, stdout) => {
-
-			if (err) return denz.sendMessage(from, "Gagal Mank:v", text, { quoted: mek})
-
-			buffer = fs.readFileSync(ranm)
-
-			denz.sendMessage(from, buffer, audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true, duration: -01})
-
-			//fs.unlinkSync(ranm)
-
-			
-
-		})
-
-	} catch (err) {
-
-		denz.sendMessage(from, "Gagal Membuat Suara MP3 Menjadi audio demon!!", text, { quoted: mek })
-
-		console.log(err)
-
-	}
-
-	break
-case 'slowmo':
-denz.updatePresence(from, Presence.recording)
-
-
-
-					 	if (!isQuotedAudio) return reply('Reply audio yang akan di slowmo')
-
-				 encmediapppppppd = isQuotedAudio ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
-
-				mediazxzd = await denz.downloadAndSaveMediaMessage(encmediapppppppd)
-
-			ranm = getRandom('.mp3')
-
-			try {
-
-		exec(`ffmpeg -i ${mediazxzd} -filter:a "atempo=0.9,asetrate=26500*1.25" ${ranm}`, (err, stderr, stdout) => {
-
-			if (err) return denz.sendMessage(from, "Gagal Mank:v", text, { quoted: mek})
-
-			buffer = fs.readFileSync(ranm)
-
-			denz.sendMessage(from, buffer, audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true, duration: -01})
-
-			//fs.unlinkSync(ranm)
-
-			
-
-		})
-
-	} catch (err) {
-
-		denz.sendMessage(from, "Gagal Membuat Suara MP3 Menjadi Slowmotion!!", text, { quoted: mek })
-
-		console.log(err)
-
-	}
-
-	break
-	case 'fast':
-					encmediaa = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-					mediapo = await denz.downloadAndSaveMediaMessage(encmediaa)
-					ran = getRandom('.mp3')
-					exec(`ffmpeg -i ${mediapo} -filter:a "atempo=1.3,asetrate=43000" ${ran}`, (err, stderr, stdout) => {
-						fs.unlinkSync(mediapo)
-						if (err) return reply('Error!')
-						hah = fs.readFileSync(ran)
-						denz.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: ftoko})
-						fs.unlinkSync(ran)
-					})
-					break
-case 'faster':
-denz.updatePresence(from, Presence.recording)
-
-
-
-					 	if (!isQuotedAudio) return reply('Reply audio yang akan di faster')
-
-				 encmediappppppppd = isQuotedAudio ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
-
-				mediazxzd = await denz.downloadAndSaveMediaMessage(encmediappppppppd)
-
-			ranm = getRandom('.mp3')
-
-			try {
-
-		exec(`ffmpeg -i ${mediazxzd} -filter:a "atempo=1.5,asetrate=16500*2.75" ${ranm}`, (err, stderr, stdout) => {
-
-			if (err) return denz.sendMessage(from, "Gagal Mank:v", text, { quoted: mek})
-
-			buffer = fs.readFileSync(ranm)
-
-			denz.sendMessage(from, buffer, audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true, duration: -01})
-
-			//fs.unlinkSync(ranm)
-
-			
-
-		})
-
-	} catch (err) {
-
-		denz.sendMessage(from, "Gagal Membuat Suara MP3 Menjadi faster!!", text, { quoted: mek })
-
-		console.log(err)
-
-	}
-
-	break
-	case 'vibrasuper':
-denz.updatePresence(from, Presence.recording)
-if (!isQuotedAudio) return reply('Reply audio nya om')
-                   encmediapj = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-		    mediaspra = await denz.downloadAndSaveMediaMessage(encmediapj)
-		    ran = getRandom('.mp3')
-		    exec(`ffmpeg -i ${mediaspra} -filter_complex "vibrato=f=10999" ${ran}`, (err, stderr, stdout) => {
-			fs.unlinkSync(mediaspra)
-			if (err) return reply('emror!')
-			hah = fs.readFileSync(ran)
-			denz.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: mek,duration: -91927829})
-			fs.unlinkSync(ran)
-		    })
-		break
-		case 'gemuk':
-		denz.updatePresence(from, Presence.recording)
-
-		    encmediapk = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-
-		    mediandut = await denz.downloadAndSaveMediaMessage(encmediapk)
-		    ran = getRandom('.mp3')
-		    exec(`ffmpeg -i ${mediandut} -filter:a "atempo=1.6,asetrate=22100" ${ran}`, (err, stderr, stdout) => {
-			fs.unlinkSync(mediandut)
-			if (err) return reply('Error!')
-			hah = fs.readFileSync(ran)
-			denz.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: mek,duration: -9973938393})
-			fs.unlinkSync(ran)
-		    })
-		break
-		case 'tupai':
-		denz.updatePresence(from, Presence.recording)
-
-		    encmediapi = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-
-		    medianduz = await denz.downloadAndSaveMediaMessage(encmediapi)
-		    ran = getRandom('.mp3')
-		    exec(`ffmpeg -i ${medianduz} -filter:a "atempo=0.5,asetrate=65100" ${ran}`, (err, stderr, stdout) => {
-			fs.unlinkSync(medianduz)
-			if (err) return reply('Error!')
-			hah = fs.readFileSync(ran)
-			denz.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: mek,duration: -9973938393})
-			fs.unlinkSync(ran)
-		    })
-		break
-		case 'superbass':                 
-denz.updatePresence(from, Presence.recording)
-		    encmediapss = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-
-		    mediandss = await denz.downloadAndSaveMediaMessage(encmediapss)
-		    ran = getRandom('.mp3')
-		    exec(`ffmpeg -i ${mediandss} -af equalizer=f=144:width_type=o:width=2:g=30 ${ran}`, (err, stderr, stdout) => {
-			fs.unlinkSync(mediandss)
-			if (err) return reply('Error!')
-			hah = fs.readFileSync(ran)
-			denz.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: mek,duration: 9973938393})
-			fs.unlinkSync(ran)
-		    })
-                                break
-                                case 'nightcore':
-                                denz.updatePresence(from, Presence.recording)
-                            if (!isQuotedAudio) return reply('Reply audio nya om')
-		    encmediapsc = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-		    mediancr = await denz.downloadAndSaveMediaMessage(encmediapsc)
-		    ran = getRandom('.mp3')
-		    exec(`ffmpeg -i ${mediancr} -filter:a atempo=1.06,asetrate=44100*1.25 ${ran}`, (err, stderr, stdout) => {
-			fs.unlinkSync(mediancr)
-			if (err) return reply('Error!')
-			hah = fs.readFileSync(ran)
-			denz.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: mek,duration: -01})
-			fs.unlinkSync(ran)
-		    })
-		break
-case 'nightcoremedium':
-denz.updatePresence(from, Presence.recording)
-                            if (!isQuotedAudio) return reply('Reply audio nya om')
-		    encmediapscm = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-		    mediancv = await denz.downloadAndSaveMediaMessage(encmediapscm)
-		    ran = getRandom('.mp3')
-		    exec(`ffmpeg -i ${mediancv} -filter:a atempo=2.06,asetrate=44100*1.75 ${ran}`, (err, stderr, stdout) => {
-			fs.unlinkSync(mediancv)
-			if (err) return reply('Error!')
-			hah = fs.readFileSync(ran)
-			denz.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: mek,duration: -01})
-			fs.unlinkSync(ran)
-		    })
-		break
-case 'nightcoresuper':
-denz.updatePresence(from, Presence.recording)
-                            if (!isQuotedAudio) return reply('Reply audio nya om')
-		    encmediapscp = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-		    mediancvspr = await denz.downloadAndSaveMediaMessage(encmediapscp)
-		    ran = getRandom('.mp3')
-		    exec(`ffmpeg -i ${mediancvspr} -filter:a atempo=2.16,asetrate=44100*1.95 ${ran}`, (err, stderr, stdout) => {
-			fs.unlinkSync(mediancvspr)
-			if (err) return reply('Error!')
-			hah = fs.readFileSync(ran)
-			denz.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: mek,duration: -01})
-			fs.unlinkSync(ran)
-		    })
-		break
-		case 'balik':
-	encmediau = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-	mediau = await denz.downloadAndSaveMediaMessage(encmediau)
-	ran = getRandom('.mp3')
-	exec(`ffmpeg -i ${mediau} -filter_complex "areverse" ${ran}`, (err, stderr, stdout) => {
-fs.unlinkSync(mediau)
-if (err) return reply('Error!')
-hah = fs.readFileSync(ran)
-denz.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt: true, duration: 999999999, quoted:mek})
-fs.unlinkSync(ran)
-	})
-break
-case 'imut':
-					encmediapo = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-					mediapoa = await denz.downloadAndSaveMediaMessage(encmediapo)
-					ran = getRandom('.mp3')
-					exec(`ffmpeg -i ${mediapoa} -af atempo=3/4,asetrate=44500*4/3 ${ran}`, (err, stderr, stdout) => {
-						fs.unlinkSync(mediapoa)
-						if (err) return reply('Error!')
-						hah = fs.readFileSync(ran)
-						denz.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt: true, quoted: fdoc})
-						fs.unlinkSync(ran)
-					})
-				break
-				case 'hode':
-					encmediaw = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-					mediax = await denz.downloadAndSaveMediaMessage(encmediaw)
-					ran = getRandom('.mp3')
-					exec(`ffmpeg -i ${mediax} -af atempo=4/3,asetrate=44500*3/4 ${ran}`, (err, stderr, stdout) => {
-						fs.unlinkSync(mediax)
-						if (err) return reply('Error!')
-						hah = fs.readFileSync(ran)
-						denz.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt: true, quoted: fdoc})
-						fs.unlinkSync(ran)
-					})
-				break
-				case 'vibra':     
-var req = args.join(' ')            
-
-					encmediaxz = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-
-					mediaxz = await denz.downloadAndSaveMediaMessage(encmediaxz)
-					ran = getRandom('.mp3')
-					exec(`ffmpeg -i ${mediaxz} -filter_complex "vibrato=f=${req}" ${ran}`, (err, stderr, stdout) => {
-						fs.unlinkSync(mediaxz)
-						if (err) return reply('Error!')
-						hah = fs.readFileSync(ran)
-						denz.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: ftoko})
-						fs.unlinkSync(ran)
-					})
-				break
-									case 'vibrav':     
-var req = args.join(' ')            
-
-					encmediazx = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-
-					mediazx = await denz.downloadAndSaveMediaMessage(encmediazx)
-					ran = getRandom('.mp4')
-					exec(`ffmpeg -i ${mediazx} -filter_complex "vibrato=f=${req}" ${ran}`, (err, stderr, stdout) => {
-						fs.unlinkSync(mediazx)
-						if (err) return reply('Error!')
-						hah = fs.readFileSync(ran)
-										denz.sendMessage(from, hah, video, { mimetype: 'video/mp4', quoted: ftoko })
-})
-					break
-					case 'tempo':
-   var req = args.join(' ')            
-					encmediam = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-					mediamn = await denz.downloadAndSaveMediaMessage(encmediam)
-					ran = getRandom('.mp3')
-					exec(`ffmpeg -i ${mediamn} -filter:a "atempo=1.0,asetrate=${req}" ${ran}`, (err, stderr, stdout) => {
-						fs.unlinkSync(mediamn)
-						if (err) return reply('Error!')
-						hah = fs.readFileSync(ran)
-						denz.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: ftroli})
-						fs.unlinkSync(ran)
-					})
-				break
-				case 'tempo-v':
-   var req = args.join(' ')            
-					encmediaq = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-					mediamv = await denz.downloadAndSaveMediaMessage(encmediaq)
-					ran = getRandom('.mp4')
-					exec(`ffmpeg -i ${mediamv} -filter:a "atempo=1.0,asetrate=${req}" ${ran}`, (err, stderr, stdout) => {
-						fs.unlinkSync(mediamv)
-						if (err) return reply('Error!')
-						hah = fs.readFileSync(ran)
-						denz.sendMessage(from, hah, video, { mimetype: 'video/mp4', quoted: ftoko })
-})
-				break
-				case 'gemes':
-					encmediaz = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-
-					mediames = await denz.downloadAndSaveMediaMessage(encmediaz)
-					ran = getRandom('.mp3')
-					exec(`ffmpeg -i ${mediames} -filter:a "atempo=1.0,asetrate=50000" ${ran}`, (err, stderr, stdout) => {
-						fs.unlinkSync(mediames)
-						if (err) return reply('Error!')
-						hah = fs.readFileSync(ran)
-					denz.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: ftoko})
-						fs.unlinkSync(ran)
-					})
-					break
-						case 'gemuk':
-					encmediat = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-
-					mediamut = await denz.downloadAndSaveMediaMessage(encmediat)
-					ran = getRandom('.mp3')
-					exec(`ffmpeg -i ${mediamut} -filter:a "atempo=1.6,asetrate=22100" ${ran}`, (err, stderr, stdout) => {
-						fs.unlinkSync(mediamut)
-						if (err) return reply('Error!')
-						hah = fs.readFileSync(ran)
-					denz.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: ftoko})
-						fs.unlinkSync(ran)
-					})
-					break
-					case 'cm':
-					encmediacm = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-					mediacm = await denz.downloadAndSaveMediaMessage(encmediacm)
-					ran = getRandom('.mp4')
-					exec(`ffmpeg -i ${mediacm} "origin(rgb24).png" -c:v libx264 -preset placebo -qp 0 -x264-params "keyint=15:no-deblock=1" -pix_fmt yuv444p10le -sws_flags spline+accurate_rnd+full_chroma_int -vf "colormatrix=bt470bg:bt709" -color_range 1 -colorspace 1 -color_primaries 1 -color_trc 1 "colormatrix_yuv444p10le.avi" ${ran}`, (err, stderr, stdout) => {
-						fs.unlinkSync(mediacm)
-						if (err) return reply('Error!')
-						hah = fs.readFileSync(ran)
-						denz.sendMessage(from, hah, video, { mimetype: 'video/mp4', quoted: ftoko })
-					})
-					break
-					case 'nsfwloli':
-				try {
-				if (isBanned) return reply(mess.only.benned)    
-				if (!isUser) return reply(mess.only.userB)
-				
-				if (isLimit(sender)) return reply(limits.limitend(pushname2))
-				if (!isNsfw) return reply(' *FALSE* ')
-				res = await fetchFxc7(`https://api.vhtear.com/randomloli&apikey=${VthearApi}`, {method: 'get'})
-				buffer = await getBuffer(res.result.result)
-				frhan.sendMessage(from, buffer, image, {quoted: mek, caption: 'Jangan jadiin bahan buat comli om'})
-				} catch (e) {
-				console.log(`Error :`, color(e,'red'))
-				reply(' *ERROR* ')
-				}
-				await limitAdd(sender)
-			break 
-			case 'nsfwsolo':
-				try {
-				if (isBanned) return reply(mess.only.benned)    
-				if (!isUser) return reply(mess.only.userB)
-				
-				if (isLimit(sender)) return reply(limits.limitend(pushname2))
-				if (!isNsfw) return reply(' *FALSE* ')
-				res = await fetchFxc7(`http://lolhuman.herokuapp.com/api/random2/solo?apikey=${lolkey}`, {method: 'get'})
-				buffer = await getBuffer(res.result)
-				frhan.sendMessage(from, buffer, image, {quoted: mek, caption: 'Jangan jadiin bahan buat comli om'})
-				} catch (e) {
-				console.log(`Error :`, color(e,'red'))
-				reply(' *ERROR* ')
-				}
-				await limitAdd(sender)
-			break 
-			case 'nsfweron':
-				try {
-				if (isBanned) return reply(mess.only.benned)    
-				if (!isUser) return reply(mess.only.userB)
-				
-				if (isLimit(sender)) return reply(limits.limitend(pushname2))
-				if (!isNsfw) return reply(' *FALSE* ')
-				res = await fetchFxc7(`http://lolhuman.herokuapp.com/api/random2/eron?apikey=${lolkey}`, {method: 'get'})
-				buffer = await getBuffer(res.result)
-				frhan.sendMessage(from, buffer, image, {quoted: mek, caption: 'Jangan jadiin bahan buat comli om'})
-				} catch (e) {
-				console.log(`Error :`, color(e,'red'))
-				reply(' *ERROR* ')
-				}
-				await limitAdd(sender)
-			break 
-				case 'nsfwlewd':
-				try {
-				if (isBanned) return reply(mess.only.benned)    
-				if (!isUser) return reply(mess.only.userB)
-				
-				if (isLimit(sender)) return reply(limits.limitend(pushname2))
-				if (!isNsfw) return reply(' *FALSE* ')
-				res = await fetchFxc7(`http://lolhuman.herokuapp.com/api/random2/lewd?apikey=${lolkey}`, {method: 'get'})
-				buffer = await getBuffer(res.result)
-				frhan.sendMessage(from, buffer, image, {quoted: mek, caption: 'Jangan jadiin bahan buat comli om'})
-				} catch (e) {
-				console.log(`Error :`, color(e,'red'))
-				reply(' *ERROR* ')
-				}
-				await limitAdd(sender)
-			break 
-			case 'nsfwyuri':
-				try {
-				if (isBanned) return reply(mess.only.benned)    
-				if (!isUser) return reply(mess.only.userB)
-				
-				if (isLimit(sender)) return reply(limits.limitend(pushname2))
-				if (!isNsfw) return reply(' *FALSE* ')
-				res = await fetchFxc7(`http://lolhuman.herokuapp.com/api/random2/yuri?apikey=${lolkey}`, {method: 'get'})
-				buffer = await getBuffer(res.result)
-				frhan.sendMessage(from, buffer, image, {quoted: mek, caption: 'Jangan jadiin bahan buat comli om'})
-				} catch (e) {
-				console.log(`Error :`, color(e,'red'))
-				reply(' *ERROR* ')
-				}
-				await limitAdd(sender)
-			break 
-				case 'nsfwecchi':
-				try {
-				if (isBanned) return reply(mess.only.benned)    
-				if (!isUser) return reply(mess.only.userB)
-				
-				if (isLimit(sender)) return reply(limits.limitend(pushname2))
-				if (!isNsfw) return reply(' *FALSE* ')
-				res = await fetchFxc7(`http://lolhuman.herokuapp.com/api/random/nsfw/ecchi?apikey=${lolkey}`, {method: 'get'})
-				buffer = await getBuffer(res.result)
-				frhan.sendMessage(from, buffer, image, {quoted: mek, caption: 'Jangan jadiin bahan buat comli om'})
-				} catch (e) {
-				console.log(`Error :`, color(e,'red'))
-				reply(' *ERROR* ')
-				}
-				await limitAdd(sender)
-			break 
-				case 'nsfwparadise':
-				    try {
-				    if (isBanned) return reply(mess.only.benned)    
-				    if (!isUser) return reply(mess.only.userB)
-				    
-				    if (isLimit(sender)) return reply(limits.limitend(pushname2))
-						if (!isNsfw) return reply(' *FALSE* ')
-						res = await fetchFxc7(`http://lolhuman.herokuapp.com/api/random/nsfw/hentaiparadise?apikey=${lolkey}`, {method: 'get'})
-						buffer = await getBuffer(res.result)
-						frhan.sendMessage(from, buffer, image, {quoted: mek, caption: 'Jangan jadiin bahan buat comli om'})
-					} catch (e) {
-						console.log(`Error :`, color(e,'red'))
-						reply(' *ERROR* ')
-					}
-					await limitAdd(sender)
-					break 
-				case 'nsfwbigtt':
-				    try {
-				    if (isBanned) return reply(mess.only.benned)    
-				    if (!isUser) return reply(mess.only.userB)
-				    
-				    if (isLimit(sender)) return reply(limits.limitend(pushname2))
-						if (!isNsfw) return reply(' *FALSE* ')
-						res = await fetchFxc7(`http://lolhuman.herokuapp.com/api/random/nsfw/biganimetiddies?apikey=${lolkey}`, {method: 'get'})
-						buffer = await getBuffer(res.result)
-						frhan.sendMessage(from, buffer, image, {quoted: mek, caption: 'Jangan jadiin bahan buat comli om'})
-					} catch (e) {
-						console.log(`Error :`, color(e,'red'))
-						reply(' *ERROR* ')
-					}
-					await limitAdd(sender)
-					break 
-				case 'nsfwclasic':
-				    try {
-				    if (isBanned) return reply(mess.only.benned)    
-				    if (!isUser) return reply(mess.only.userB)
-				    
-				    if (isLimit(sender)) return reply(limits.limitend(pushname2))
-						if (!isNsfw) return reply(' *FALSE* ')
-						res = await fetchFxc7(`http://lolhuman.herokuapp.com/api/random2/classic?apikey=${lolkey}`, {method: 'get'})
-						buffer = await getBuffer(res.result.result)
-						frhan.sendMessage(from, buffer, image, {quoted: mek, caption: 'Jangan jadiin bahan buat comli om'})
-					} catch (e) {
-						console.log(`Error :`, color(e,'red'))
-						reply(' *ERROR* ')
-					}
-					await limitAdd(sender)
-					break 
-				case 'nsfwcum':
-				    try {
-				    if (isBanned) return reply(mess.only.benned)    
-				    if (!isUser) return reply(mess.only.userB)
-				    
-				    if (isLimit(sender)) return reply(limits.limitend(pushname2))
-						if (!isNsfw) return reply(' *FALSE* ')
-						res = await fetchFxc7(`http://lolhuman.herokuapp.com/api/random2/cum_jpg?apikey=${lolkey}`, {method: 'get'})
-						buffer = await getBuffer(res.result)
-						frhan.sendMessage(from, buffer, image, {quoted: mek, caption: 'Jangan jadiin bahan buat comli om'})
-					} catch (e) {
-						console.log(`Error :`, color(e,'red'))
-						reply(' *ERROR* ')
-					}
-					await limitAdd(sender)
-					break 
-				case 'nsfwpussy':
-				    try {
-				    if (isBanned) return reply(mess.only.benned)    
-				    if (!isUser) return reply(mess.only.userB)
-				    
-				    if (isLimit(sender)) return reply(limits.limitend(pushname2))
-						if (!isNsfw) return reply(' *FALSE* ')
-						res = await fetchFxc7(`http://lolhuman.herokuapp.com/api/random2/pussy?apikey=${lolkey}`, {method: 'get'})
-						buffer = await getBuffer(res.result)
-						frhan.sendMessage(from, buffer, image, {quoted: mek, caption: 'Jangan jadiin bahan buat comli om'})
-					} catch (e) {
-						console.log(`Error :`, color(e,'red'))
-						reply(' *ERROR* ')
-					}
-					await limitAdd(sender)
-					break 
-			    case 'nsfwblowjob':
-				    try {
-				    if (isBanned) return reply(mess.only.benned)    
-				    if (!isUser) return reply(mess.only.userB)
-				    
-				    if (isLimit(sender)) return reply(limitend(pushname2))
-						if (!isNsfw) return reply(' *FALSE* ')
-						res = await fetchFxc7(`https://tobz-api.herokuapp.com/api/nsfwblowjob?apikey=${TobzApi}`, {method: 'get'})
-						buffer = await getBuffer(res.result)
-						frhan.sendMessage(from, buffer, image, {quoted: mek, caption: 'Jangan jadiin bahan buat comli om'})
-					} catch (e) {
-						console.log(`Error :`, color(e,'red'))
-						reply(' *ERROR* ')
-					}
-					await limitAdd(sender)
-					break 
-			    case 'nsfwneko':
-				    try {
-				    if (isBanned) return reply(mess.only.benned)    
-				    if (!isUser) return reply(mess.only.userB)
-				    
-				    if (isLimit(sender)) return reply(limitend(pushname2))
-						if (!isNsfw) return reply(' *FALSE* ')
-						res = await fetchFxc7(`https://tobz-api.herokuapp.com/api/nsfwneko?apikey=${TobzApi}`, {method: 'get'})
-						buffer = await getBuffer(res.result)
-						frhan.sendMessage(from, buffer, image, {quoted: mek, caption: 'ni anjim'})
-					} catch (e) {
-						console.log(`Error :`, color(e,'red'))
-						reply(' *ERROR* ')
-					}
-					await limitAdd(sender) 
-					break 
-				case 'nsfwtrap':
-				    try {
-				    if (isBanned) return reply(mess.only.benned)    
-				    if (!isUser) return reply(mess.only.userB)
-				    
-				    if (isLimit(sender)) return reply(limitend(pushname2))
-						if (!isNsfw) return reply(' *FALSE* ')
-						res = await fetchFxc7(`https://tobz-api.herokuapp.com/api/nsfwtrap?apikey=${TobzApi}`, {method: 'get'})
-						buffer = await getBuffer(res.result)
-						frhan.sendMessage(from, buffer, image, {quoted: mek, caption: 'ni anjim'})
-					} catch (e) {
-						console.log(`Error :`, color(e,'red'))
-						reply(' *ERROR* ')
-					}
-					await limitAdd(sender) 
-					break 
-				case 'hentai':
-				    try {
-				    if (isBanned) return reply(mess.only.benned)    
-				    if (!isUser) return reply(mess.only.userB)
-				    
-				    if (isLimit(sender)) return reply(limitend(pushname2))
-						if (!isNsfw) return reply(' *FALSE* ')
-						res = await fetchFxc7(`https://tobz-api.herokuapp.com/api/hentai?apikey=${TobzApi}`, {method: 'get'})
-						buffer = await getBuffer(res.result)
-						frhan.sendMessage(from, buffer, image, {quoted: mek, caption: 'ni anjim'})
-					} catch (e) {
-						console.log(`Error :`, color(e,'red'))
-						reply(' *ERROR* ')
-					}
-					await limitAdd(sender) 
-					break 
-				case 'tebakgambar':
-                anu = await fetchJson(`https://videfikri.com/api/tebakgambar`, {method: 'get'})
-					bufferkkk = await getBuffer(anu.result.soal_gbr)
-					setTimeout( () => {
-					denz.sendMessage(from, '*➸ Jawaban :* '+anu.result.jawaban, text, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}}) // ur cods
-					}, 30000) // 1000 = 1s,
-					setTimeout( () => {
-					denz.sendMessage(from, '_10 Detik lagi…_', text) // ur cods
-					}, 20000) // 1000 = 1s,
-					setTimeout( () => {
-					denz.sendMessage(from, '_20 Detik lagi_…', text) // ur cods
-					}, 10000) // 1000 = 1s,
-					setTimeout( () => {
-					denz.sendMessage(from, '_30 Detik lagi_…', text) // ur cods
-					}, 2500) // 1000 = 1s,
-					setTimeout( () => {
-					denz.sendMessage(from, bufferkkk, image, { caption: '_Jelaskan Apa Maksud Gambar Ini_', quoted: ftoko }) // ur cods
-					}, 0) // 1000 = 1s,
-					break
-					case 'apiteks':
-				   if (args.length < 1) return reply('Teksnya mana um')
-					love = args.join(' ')
-					if (love.length > 12) return reply('Teksnya kepanjangan, maksimal 9 karakter')
-                    reply(mess.wait)
-					bufferxcz = await getBuffer(`https://api.zeks.xyz/api/tfire?text=${love}&apikey=${zeks}`, {method: 'get'})
-					denz.sendMessage(from, bufferxcz, image, {quoted: ftoko, caption: ' '+love})
-					break
-					case 'quotemaker':
-                var gh = args.join(' ')
-					var quote = gh.split("|")[0];
-					var wm = gh.split("|")[1];
-					const pref = `Usage: \n${prefix}quotemaker teks|watermark\n\nEx :\n${prefix}quotemaker ini contoh|bicit`
-					if (args.length < 1) return reply(pref)
-					reply(ind.wait())
-					anu = await fetchJson(`https://terhambar.com/aw/qts/?kata=${quote}&author=${wm}&tipe=random`, {method: 'get'})
-					buffer = await getBuffer(anu.result)
-					denz.sendMessage(from, buffer, image, {caption: 'Nih anjim', quoted: ftoko})
-					break
-					case 'mimpi':
-			    anu = await fetchJson(`https://api.arugaz.my.id/api/primbon/tafsirmimpi?mimpi=${args.join(' ')}`, {method: 'get'})
-			        mimpi = `Arti Mimpi *${args.join(' ')}* Adalah:\n${anu.result.hasil}`
-			        denz.sendMessage(from, mimpi, text, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}}) 
-			       	break
-		case 'lolhumancek':
-   case 'ceklolkey':
- anunye = await fetchJson(`http://api.lolhuman.xyz/api/checkapikey?apikey=${args.join(' ')}`)
-nganu = `❒ *Username :* ${anunye.result.username}
-❒ *Sisa Limit :* ${anunye.result.requests}
-❒ *Type :* ${anunye.result.account_type}
-❒ *Expired :* ${anunye.result.expired}` 
-denz.sendMessage(from, nganu, text, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-break
-
-case 'tospam':
-if (!isQuotedSticker && !isQuotedAudio && !isQuotedImage && budy.length > 10) {
-teks = body.slice(8)
-oi1 = teks.split('|')[0]
-oi2 = teks.split('|')[1]
-if (Number(oi2) >= 50) return reply('Kebanyakan!')
-if (!Number(oi2)) return reply('Jumlah harus berupa angka!')
-	  for (let i = 0; i < oi2; i++) {
-	  denz.sendMessage(from, `${oi1}`, MessageType.text)
-	  }
-} else if (!isQuotedSticker && !isQuotedAudio && !isQuotedImage && budy.length < 10) {
-teks = mek.message.extendedTextMessage.contextInfo.quotedMessage.conversation
-if (!Number(args[0])) return reply('Jumlah harus berupa angka!')
-if (Number(args[0]) >= 50) return reply('Kebanyakan!')
-	  for (let i = 0; i < args[0]; i++) {
-	  denz.sendMessage(from, teks, MessageType.text)
-	  }
-} else if (isQuotedSticker) {
-	encmedian = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-	         median = await denz.downloadAndSaveMediaMessage(encmedian)
-				anu = fs.readFileSync(median)
-	if (!Number(args[0])) return reply('Jumlah harus berupa angka!')
-	if (Number(args[0]) >= 50) return reply('Kebanyakan!')
-	  for (let i = 0; i < args[0]; i++) {
-	  denz.sendMessage(from, anu, sticker)
-	  }
-} else if (isQuotedAudio) {
-	encmediat = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-	            mediat = await denz.downloadAndSaveMediaMessage(encmediat)
-				anu = fs.readFileSync(mediat)
-	if (!Number(args[0])) return reply('Jumlah harus berupa angka!')
-	if (Number(args[0]) >= 50) return reply('Kebanyakan!')
-	  for (let i = 0; i < args[0]; i++) {
-	  denz.sendMessage(from, anu, audio, {mimetype: 'audio/mp4', duration: 999999999, ptt:true})
-	  }
-} else if (isQuotedImage) {
-	boij = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
-	delb = await denz.downloadMediaMessage(boij)
-	teks = body.slice(6)
-	oi1 = teks.split('|')[0]
-oi2 = teks.split('|')[1]
-if (Number(oi2) >= 50) return reply('Kebanyakan!')
-	if (!Number(oi2)) return reply('Jumlah harus berupa angka!')
-	  for (let i = 0; i < oi2; i++) {
-	  denz.sendMessage(from, delb, MessageType.image, {caption: oi1})
-	  }
-}
-	  break
-case 'ppcouple':
-					anu = await fetchJson('https://lindow-api.herokuapp.com/api/ppcouple?apikey=LindowApi')
-					cwok = await getBuffer(anu.result.male)
-					cwek = await getBuffer(anu.result.female)
-					denz.sendMessage(from, cwek, image, { caption: 'Ini Yang Cewek', quoted: fimg })
-					denz.sendMessage(from, cwok, MessageType.image, { caption: 'Ini Yang Cowok', quoted: fimg })
-					break
-					case 'ppcouple2':
- yuksi = await fetchJson('https://lindow-api.herokuapp.com/api/anitopcouple?apikey=LindowApi')
-rand = await yuksi.result[Math.floor(Math.random() * yuksi.result.length)]
-reply(mess.wait)
-await sendMediaURL(from, rand.coupleImages.imageUrlOne, `_NIH YANG COWO_`)
-sendMediaURL(from, rand.coupleImages.imageUrlTwo, `_NIH YANG CEWE_`)
-break
-case 'admin':
-            case 'owner':
-            case 'creator':
-                  denz.sendMessage(from, {displayname: "Jeff", vcard: vcard}, MessageType.contact, { quoted: mek})
-                  denz.sendMessage(from, 'Tuh kontak Ownerku <•_•> ,Jangan Lupa Save Ya (*>*)',MessageType.text, { quoted: mek} )
-                  ini_buffer = await getBuffer("https://i.ibb.co/3RXKdX3/20210406-202806.jpg")
-                  denz.sendMessage(from, ini_buffer, MessageType.image, {quoted: ftoko, caption: 'JOIN GRUP: \n *https://chat.whatsapp.com/HYD57dkrNtUESI7Hbm203m*'})
-                  break
-                    denz.sendMessage(from, ga, text, {quoted: ftoko})
-				  denz.sendMessage(from, buffer, audio, {mimetype: 'audio/mp4', quoted: ftoko, ptt:true})
-				break
-					case 'igd':
-            if (args.length < 1) return reply('Link nya mana?')
-            anu = await fetchJson(`https://videfikri.com/api/igvideo/?url=${args[0]}`, {method: 'get'})          
-            buffer = await getBuffer(anu.result.video)
-            denz.sendMessage(from, buffer,video, { mimetype: 'video/mp4', filename: `${anu.result.fullname}.mp4`,quoted:mek})
-            break
-case 'ig':
- pe = args.join(' ')
- anu = await fetchJson(`https://videfikri.com/api/igdl/?url=${pe}`)
- buf = await getBuffer(`${anu.result.video}`)
- denz.sendMessage(from, buf, video, {quoted:ftoko, caption: `Nih Boss` })
- break
- case 'tiktok':
-   var teks = body.slice(8)
-  anu = await fetchJson(`http://api.lolhuman.xyz/api/tiktok?apikey=${lol}&url=${teks}`, {method: 'get'})
-teks = `Nih Boss Videonya...`
-					buffer = await getBuffer(anu.result.link)
-					denz.sendMessage(from, buffer, video, {mimetype: 'video/mp4', quoted: ftroli, caption: teks})
-					break
-                            case 'tiktoknowm':
-		
-		     if (args.length == 0) return reply(`Example: ${prefix + command} https://vt.tiktok.com/ZSwWCk5o/`)
-                    ini_url = args[0]
-                    ini_url = `http://api.lolhuman.xyz/api/tiktok?apikey=${apikey}&url=${ini_url}`
-                    get_result = await fetchJson(ini_url)
-                    ini_buffer = await getBuffer(get_result.result.link)
-                    denz.sendMessage(from, ini_buffer, video, { quoted: ftroli, contextInfo: {"forwardingScore": 999, "isForwarded": true}, quoted: ftroli })
-                    break
-                            case 'tiktoknowm2':
-                    if (args.length == 0) return reply(`Contoh: ${prefix + command} https://vt.tiktok.com/ZSwWCk5o/`)
-                    ini_url = args[0]
-                    ini_url = `http://api.lolhuman.xyz/api/tiktok?apikey=${lol}&url=${ini_url}`
-                    get_result = await fetchJson(ini_url)
-                    ini_buffer = await getBuffer(get_result.result.link)
-                    denz.sendMessage(from, ini_buffer, video, { quoted: fvn})
-                    break
-                    case 'tiktoknowm3':
- reply('wait')
- pe = args.join(' ')
-  anu = await fetchJson(`http://docs-jojo.herokuapp.com/api/tiktok_nowm?url=${pe}`)
-teks = `Nih Boss Videonya...`
-					buffer = await getBuffer(`${anu.result}`)
-					denz.sendMessage(from, buffer, video, {mimetype: 'video/mp4', quoted: ftroli, caption: teks})
-					break
-					case 'tiktokmusicdc':
-		
-		  if (args.length == 0) return reply(`Example: ${prefix + command} https://vt.tiktok.com/ZSwWCk5o/`)
-                    ini_link = args[0]
-                    get_audio = await getBuffer(`http://api.lolhuman.xyz/api/tiktokmusic?apikey=${apikey}&url=${ini_link}`)
-                    denz.sendMessage(from, get_audio, audio, { mimetype: Mimetype.mp4Audio, quoted: ftroli, ptt:true})
-                    break
-case 'tiktokmusic':
-		
-		  if (args.length == 0) return reply(`Example: ${prefix + command} https://vt.tiktok.com/ZSwWCk5o/`)
-                    ini_link = args[0]
-                    get_audio = await getBuffer(`http://api.lolhuman.xyz/api/tiktokmusic?apikey=${apikey}&url=${ini_link}`)
-                    denz.sendMessage(from, get_audio, audio, { mimetype: Mimetype.mp4Audio, quoted: ftroli})
-                    break
-                    case 'tiktokmusic':
-                    if (args.length == 0) return reply(`Example: ${prefix + command} https://vt.tiktok.com/ZSwWCk5o/`)
-                    ini_link = args[0]
-                    get_audio = await getBuffer(`http://api.lolhuman.xyz/api/tiktokmusic?apikey=${lol}&url=${ini_link}`)
-                    denz.sendMessage(from, get_audio, audio, { mimetype: Mimetype.mp4Audio, quoted: ftoko})
-                    break
-                    case 'telesticker':
-                    if (args.length == 0) return reply(`Contoh: ${prefix + command} https://t.me/addstickers/LINE_Menhera_chan_ENG`)
-                    ini_url = args[0]
-                    ini_url = await fetchJson(`http://api.lolhuman.xyz/api/telestick?apikey=${lolhuman}&url=${ini_url}`)
-                    ini_sticker = ini_url.result.sticker
-                    for (sticker_ in ini_sticker) {
-                        ini_buffer = await getBuffer(ini_sticker[sticker_])
-                        denz.sendMessage(from, ini_buffer, sticker)
-                     }
-                    break
-case 'igpost': 
-                 if (args.length < 1) return reply('Urlnya mana sayang?')
-				if (!isUrl(args[0]) && !args[0].includes('www.instagram.com')) return reply(mess.error.lv)
-					 ige = body.slice(8)
-                     anu = await fetchJson(`http://lolhuman.herokuapp.com/api/instagram?apikey=${apikey}&url=${args[0]}`, {method: 'get'})
-					if (anu.error) return reply(anu.error)
-					buffer = await getBuffer(anu.result)
-                    denz.sendMessage(from, buffer, image, { quoted: fdoc, contextInfo: {"forwardingScore": 999, "isForwarded": true}, caption: 'Nihh onii chan'})
-				    break
-case 'igvideo':
-if (args.length < 1) return reply('Urlnya mana sayang?')
-				if (!isUrl(args[0]) && !args[0].includes('www.instagram.com')) return reply(mess.error.lv)
-					 ige = body.slice(9)
-                     anu = await fetchJson(`http://lolhuman.herokuapp.com/api/instagram?apikey=${apikey}&url=${args[0]}`, {method: 'get'})
-					if (anu.error) return reply(anu.error)
-					buffer = await getBuffer(anu.result)
-                    denz.sendMessage(from, buffer, video, { quoted: fvid, contextInfo: {"forwardingScore": 999, "isForwarded": true}, caption: 'Nihh onii chan'})
-				    break
- case 'block':
-					denz.updatePresence(from, Presence.composing) 
-				    denz.blockUser (`${args.join(' ')}@c.us`, "add")
-					denz.sendMessage(from, `𝗦𝘂𝗸𝘀𝗲𝘀 𝗠𝗲𝗺𝗯𝗹𝗼𝗸𝗶𝗿`, text)
-				break
-				case 'unblock':
-					denz.updatePresence(from, Presence.composing) 
-					denz.blockUser (`${args.join(' ')}@c.us`, "remove")
-					denz.sendMessage(from, `𝗦𝘂𝗸𝘀𝗲𝘀 𝗨𝗻𝗯𝗹𝗼𝗰𝗸𝗶𝗿`, text)
-				break 
-				case 'toaudio':
-			denz.updatePresence(from, Presence.composing)
-				if (!isQuotedAudio)
-				if (!isQuotedVideo) return reply('itu video bruh?:V')
-				reply(mess.wait)
-				encmediacau = JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo
-				mediaczs = await denz.downloadAndSaveMediaMessage(encmediacau)
-				ran = getRandom('.mp3')
-				exec(`ffmpeg -i ${mediaczs} ${ran}`, (err) => {
-					fs.unlinkSync(mediaczs)
-					if (err) return reply('Yahh emrror bruh:(')
-					buffer = fs.readFileSync(ran)
-					denz.sendMessage(from, buffer, audio, { mimetype: 'audio/mp4', quoted: ftoko})
-				})
-				break
-				case 'tovn':
-				denz.updatePresence(from, Presence.composing)
-				if (!isQuotedAudio)
-				if (!isQuotedVideo) return reply('itu video bruh?:V')
-				reply(mess.wait)
-				encmediavn = JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo
-				mediacvn = await denz.downloadAndSaveMediaMessage(encmediavn)
-				ran = getRandom('.mp3')
-				exec(`ffmpeg -i ${mediacvn} ${ran}`, (err) => {
-					fs.unlinkSync(mediacvn)
-					if (err) return reply('Yahh emrror bruh:(')
-					buffer = fs.readFileSync(ran)
-					denz.sendMessage(from, buffer, audio, { mimetype: 'audio/mp4', quoted: ftoko, ptt: true, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-				})
-				break
-				
-				case 'tovn-v':
-				denz.updatePresence(from, Presence.composing)
-				if (!isQuotedVideo) return reply('itu video bruh?:V')
-				reply(mess.wait)
-				encmediavnv = JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo
-				mediacvnv = await denz.downloadAndSaveMediaMessage(encmediavnv)
-				ran = getRandom('.mp4')
-				exec(`ffmpeg -i ${mediacvnv} ${ran}`, (err) => {
-					fs.unlinkSync(mediacvnv)
-					if (err) return reply('Yahh emrror bruh:(')
-					buffer = fs.readFileSync(ran)
-					denz.sendMessage(from, buffer, audio, { mimetype: 'audio/mp4', quoted: ftoko, ptt: true, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-				})
-				break
-				case 'toaudio':
-				denz.updatePresence(from, Presence.composing)
-				if (!isQuotedAudio) return reply('itu video bruh?:V')
-				reply(mess.wait)
-				encmediaau = JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo
-				mediaaud = await denz.downloadAndSaveMediaMessage(encmediaau)
-				ran = getRandom('.mp3')
-				exec(`ffmpeg -i ${mediaaud} ${ran}`, (err) => {
-					fs.unlinkSync(mediaaud)
-					if (err) return reply('Yahh emrror bruh:(')
-denz.sendMessage(from, buffer, audio, { mimetype: 'ptt', quoted: ftoko, duration:99999999999999999999999})
-						fs.unlinkSync(ran)
-
-					   })
-				break
-				case 'cmd':
-            reply('Sedang Proses...')
-	           var teks = encodeURIComponent(body.slice(4))
-		       if (!teks) return denz.sendMessage(from,  MessageType.text, { quoted: ftroli, contextInfo: {"forwardingScore": 999, "isForwarded": true}, sendEphemeral: true})
-               var buffer  = await  getBuffer(`https://api-rull.herokuapp.com/api/cmd?code=${teks}`)
-               denz.sendMessage(from, buffer, image,  { quoted: ftroli, contextInfo: {"forwardingScore": 999, "isForwarded": true}, sendEphemeral: true})
-            break
-            case 'addbucin':
-                if (!isOwner) return reply(mess.only.ownerB)
-				huu = body.slice(10)
-						bucinrandom.push(huu)
-						fs.writeFileSync('./database/bucin.json', JSON.stringify(bucinrandom))
-						reply(`Sukses, Kata \n*${huu}*\n Telah Ditambahkan ke database`)
-					break
-					case 'bucin':
-						hasil = bucinrandom[Math.floor(Math.random() * (bucinrandom.length))]
-						denz.sendMessage(from, '*'+hasil+'*', text, {quoted: ftroli})
-					break
-					case 'bacotandilan':
-						hasil = randomdilan[Math.floor(Math.random() * (randomdilan.length))]
-						denz.sendMessage(from, '*'+hasil+'*\n\n~ *Dilan*', text, {quoted: ftoko})
-					break
-					case 'hekerbucin':
-				hasil = hekerbucin[Math.floor(Math.random() * (hekerbucin.length))]
-				denz.sendMessage(from, '*'+hasil+'*', text, {quoted: ftroli})
-				break 
-				case 'randomhusbu':
-        reply(`Sedang Proses...`)
-        buffer = await getBuffer(`https://lindow-api.herokuapp.com/api/husbu?apikey=LindowApi`)
-                    denz.sendMessage(from, buffer, image, { quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}, sendEphemeral: true})
-                    break
-        case 'randomwaifu':
-        reply(`Sedang Proses...`)
-        buffer = await getBuffer(`https://lindow-api.herokuapp.com/api/waifu?apikey=LindowApi`)
-                    denz.sendMessage(from, buffer, image, { quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}, sendEphemeral: true})
-                    break
-       case 'randomloli':
-       reply(`Sedang Proses...`)
-        buffer = await getBuffer(`https://lindow-api.herokuapp.com/api/loli?apikey=LindowApi`)
-                    denz.sendMessage(from, buffer, image, { quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}, sendEphemeral: true})
-                    break
-            if (!command) console.log(mek)
-            // END ADD CASE BY FAJAR!!!
 				case 'sticker':
 					case 'stiker':
 					case 's':
@@ -4079,7 +3363,7 @@ denz.sendMessage(from, buffer, audio, { mimetype: 'ptt', quoted: ftoko, duration
 					return denz.sendMessage(from, JSON.stringify(eval(body.slice(8))), text, {quoted: mek})
 					if (err) return denz.sendMessage(from, `root @dcode-denpa:~ ${err}`, text, { quoted: mek })
                  break
-				case 'toimg':
+                 case 'toimg':
 				case 'tomedia':
 					if (!isQuotedSticker) return reply('Reply stiker nya')
 					if (mek.message.extendedTextMessage.contextInfo.quotedMessage.stickerMessage.isAnimated === true){
@@ -4296,1387 +3580,7 @@ denz.sendMessage(from, buffer, audio, { mimetype: 'ptt', quoted: ftoko, duration
                 deleteCommands(body.slice(11), commandsDB)
 				reply(`Sukses menghapus respon ${body.slice(11)}`)
 				break
-				// ADD CASE BY FAJAR!!!
-					case 'alquran':
-                    if (args.length < 1) return reply(`Example: ${prefix + command} 18 or ${prefix + command} 18/10 or ${prefix + command} 18/1-10`)
-                    urls = `http://api.lolhuman.xyz/api/quran/${args[0]}?apikey=682aeab645ed61cf137cf971`
-                    quran = await fetchJson(urls)
-                    result = quran.result
-                    ayat = result.ayat
-                    ini_txt = `QS. ${result.surah} : 1-${ayat.length}\n\n`
-                    for (var x of ayat) {
-                        arab = x.arab
-                        nomor = x.ayat
-                        latin = x.latin
-                        indo = x.indonesia
-                        ini_txt += `${arab}\n${nomor}. ${latin}\n${indo}\n\n`
-                    }
-                    ini_txt = ini_txt.replace(/<u>/g, "").replace(/<\/u>/g, "")
-                    ini_txt = ini_txt.replace(/<strong>/g, "").replace(/<\/strong>/g, "")
-                    ini_txt = ini_txt.replace(/<u>/g, "").replace(/<\/u>/g, "")
-                    reply(ini_txt)
-                    break
-                    case 'alquranaudio':
-                    if (args.length == 0) return reply(`Example: ${prefix + command} 18 or ${prefix + command} 18/10`)
-                    surah = args[0]
-                    ini_buffer = await getBuffer(`http://api.lolhuman.xyz/api/quran/audio/${surah}?apikey=${apikey}`)
-                    denz.sendMessage(from, ini_buffer, audio, { quoted: mek, mimetype: Mimetype.mp4Audio })
-                    break
-                case 'asmaulhusna':
-                    get_result = await fetchJson(`http://api.lolhuman.xyz/api/asmaulhusna?apikey=682aeab645ed61cf137cf971`)
-                    get_result = get_result.result
-                    ini_txt = `No : ${get_result.index}\n`
-                    ini_txt += `Latin: ${get_result.latin}\n`
-                    ini_txt += `Arab : ${get_result.ar}\n`
-                    ini_txt += `Indonesia : ${get_result.id}\n`
-                    ini_txt += `English : ${get_result.en}`
-                    reply(ini_txt)
-                    break
-                case 'kisahnabi':
-                    if (args.length == 0) return reply(`Example: ${prefix + command} Nama nabi`)
-                    query = args.join(" ")
-                    get_result = await fetchJson(`http://api.lolhuman.xyz/api/kisahnabi/${query}?apikey=682aeab645ed61cf137cf971`)
-                    get_result = get_result.result
-                    ini_txt = `Name : ${get_result.name}\n`
-                    ini_txt += `Lahir : ${get_result.thn_kelahiran}\n`
-                    ini_txt += `Umur : ${get_result.age}\n`
-                    ini_txt += `Tempat : ${get_result.place}\n`
-                    ini_txt += `Story : \n${get_result.story}`
-                    reply(ini_txt)
-                    break
- case 'jadwalsholat':
-                    if (args.length == 0) return reply(`Example: ${prefix + command} Yogyakarta`)
-                    daerah = args.join(" ")
-                    get_result = await fetchJson(`http://api.lolhuman.xyz/api/sholat/${daerah}?apikey=682aeab645ed61cf137cf971`)
-                    get_result = get_result.result
-                    ini_txt = `Wilayah : ${get_result.wilayah}\n`
-                    ini_txt += `Tanggal : ${get_result.tanggal}\n`
-                    ini_txt += `Sahur : ${get_result.sahur}\n`
-                    ini_txt += `Imsak : ${get_result.imsak}\n`
-                    ini_txt += `Subuh : ${get_result.subuh}\n`
-                    ini_txt += `Terbit : ${get_result.terbit}\n`
-                    ini_txt += `Dhuha : ${get_result.dhuha}\n`
-                    ini_txt += `Dzuhur : ${get_result.dzuhur}\n`
-                    ini_txt += `Ashar : ${get_result.ashar}\n`
-                    ini_txt += `Maghrib : ${get_result.imsak}\n`
-                    ini_txt += `Isya : ${get_result.isya}`
-                    reply(ini_txt)
-                    break
-                    case 'wetglass':
-                case 'multicolor3d':
-                case 'watercolor':
-                case 'luxurygold':
-                case 'galaxywallpaper':
-                case 'lighttext':
-                case 'beautifulflower':
-                case 'puppycute':
-                case 'royaltext':
-                case 'heartshaped':
-                case 'birthdaycake':
-                case 'galaxystyle':
-                case 'hologram3d':
-                case 'greenneon':
-                case 'glossychrome':
-                case 'greenbush':
-                case 'metallogo':
-                case 'noeltext':
-                case 'glittergold':
-                case 'textcake':
-                case 'starsnight':
-                case 'wooden3d':
-                case 'textbyname':
-                case 'writegalacy':
-                case 'galaxybat':
-                case 'snow3d':
-                case 'birthdayday':
-                case 'goldplaybutton':
-                case 'silverplaybutton':
-                case 'freefire':
-                    if (args.length == 0) return reply(`Example: ${prefix + command} FajarGans`)
-                    ini_txt = args.join(" ")
-                    ini_buffer = await getBuffer(`http://api.lolhuman.xyz/api/ephoto1/${command}?apikey=682aeab645ed61cf137cf971&text=${ini_txt}`)
-                    denz.sendMessage(from, ini_buffer, image, { quoted: mek })
-                    break
-                    case 'art':
-                case 'bts':
-                case 'exo':
-                case 'elf':
-                case 'loli':
-                case 'neko':
-                case 'waifu':
-                case 'shota':
-                case 'husbu':
-                case 'sagiri':
-                case 'shinobu':
-                case 'megumin':
-                case 'wallnime':
-                    ini_buffer = await getBuffer(`http://api.lolhuman.xyz/api/random/${command}?apikey=682aeab645ed61cf137cf971`)
-                    denz.sendMessage(from, ini_buffer, image, { quoted: mek })
-                    break
-                    case 'chiisaihentai':
-                case 'trap':
-                case 'blowjob':
-                case 'yaoi':
-                case 'ecchi':
-                case 'hentai':
-                case 'ahegao':
-                case 'hololewd':
-                case 'sideoppai':
-                case 'animefeets':
-                case 'animebooty':
-                case 'animethi':
-                case 'hentaiparadise':
-                case 'animearmpits':
-                case 'hentaifemdom':
-                case 'lewdanimegirls':
-                case 'biganimetiddies':
-                case 'animebellybutton':
-                case 'hentai4everyone':
-                    ini_buffer = await getBuffer(`http://api.lolhuman.xyz/api/random/nsfw/${command}?apikey=682aeab645ed61cf137cf971`)
-                    denz.sendMessage(from, ini_buffer, image, { quoted: mek })
-                    break
-                case 'bj':
-                case 'ero':
-                case 'cum':
-                case 'feet':
-                case 'yuri':
-                case 'trap':
-                case 'lewd':
-                case 'feed':
-                case 'eron':
-                case 'solo':
-                case 'gasm':
-                case 'poke':
-                case 'anal':
-                case 'holo':
-                case 'tits':
-                case 'kuni':
-                case 'kiss':
-                case 'erok':
-                case 'smug':
-                case 'baka':
-                case 'solog':
-                case 'feetg':
-                case 'lewdk':
-                case 'waifu':
-                case 'pussy':
-                case 'femdom':
-                case 'cuddle':
-                case 'hentai':
-                case 'eroyuri':
-                case 'cum_jpg':
-                case 'blowjobs':
-                case 'erofeet':
-                case 'holoero':
-                case 'classic':
-                case 'erokemo':
-                case 'fox':
-                case 'futanari':
-                case 'lewdkemo':
-                case 'wallpaper':
-                case 'pussy_jpg':
-                case 'kemonomimi':
-                case 'nsfw_avatar':
-                    ini_buffer = await getBuffer(`http://api.lolhuman.xyz/api/random2/${command}?apikey=682aeab645ed61cf137cf971`)
-                    denz.sendMessage(from, ini_buffer, image, { quoted: mek })
-                    break
-                    case '8bit':
-if (args.length < 1) return reply(`Contoh: ${prefix}8bit fajar/bot`)
-ds = `${args.join(' ')}`
-tex1 = ds.split("|")[0];
-tex2 = ds.split("|")[1];
-reply(mess.wait)
-brikff = await getBuffer(`https://videfikri.com/api/textmaker/8bit/?text1=${tex1}&text2=${tex2}`, {method: 'get'})
-denz.sendMessage(from, brikff, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'burnpaper':
-if (args.length < 1) return reply(`Contoh: ${prefix}burnpaper denz`)
-todi = args.join(' ')
-reply(mess.wait)
-pper = await getBuffer(`https://videfikri.com/api/textmaker/burnpaper/?text=${todi}`)
-denz.sendMessage(from, pper, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'glowneon':
-if (args.length < 1) return reply(`Contoh: ${prefix}glowneon denz`)
-tekas = args.join(' ')
-reply(mess.wait)
-glown = await getBuffer(`https://videfikri.com/api/textmaker/glowingneon/?text=${tekas}`)
-denz.sendMessage(from, glown, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'gsuggest':
-if (args.length < 1) return reply(`Contoh: ${prefix}gsuggest denz/bot/wea`)
-du = `${args.join(' ')}`
-ted1 = du.split("|")[0];
-ted2 = du.split("|")[1];
-ted3 = du.split("|")[2];
-reply(mess.wait)
-sugetg = await getBuffer(`https://videfikri.com/api/textmaker/gsuggest/?text1=${ted1}&text2=${ted2}&text3=${ted3}`, {method: 'get'})
-denz.sendMessage(from, sugetg, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'candlemug':
-if (args.length < 1) return reply(`Contoh: ${prefix}candlemug denz`)
-ddu = args.join(' ')
-reply(mess.wait)
-clmug = await getBuffer(`https://videfikri.com/api/textmaker/candlemug/?text=${ddu}`)
-denz.sendMessage(from, clmug, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-
-case 'lovemss':
-if (args.length < 1) return reply(`Contoh: ${prefix}lovemss denz`)
-lop = args.join(' ')
-reply(mess.wait)
-lepms = await getBuffer(`https://videfikri.com/api/textmaker/lovemsg/?text=${lop}`)
-denz.sendMessage(from, lepms, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'mugflower':
-if (args.length < 1) return reply(`Contoh: ${prefix}mugflower denz`)
-mug = args.join(' ')
-reply(mess.wait)
-mflowg = await getBuffer(`https://videfikri.com/api/textmaker/mugflower/?text=${mug}`)
-denz.sendMessage(from, mflowg, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'narutobanner':
-if (args.length < 1) return reply(`Contoh: ${prefix}narutobanner denz`)
-nar = args.join(' ')
-reply(mess.wait)
-narba = await getBuffer(`https://videfikri.com/api/textmaker/narutobanner/?text=${nar}`)
-denz.sendMessage(from, narba, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'paperglass':
-if (args.length < 1) return reply(`Contoh: ${prefix}paperglass denz`)
-papg = args.join(' ')
-reply(mess.wait)
-gelas = await getBuffer(`https://videfikri.com/api/textmaker/paperonglass/?text=${papg}`)
-denz.sendMessage(from, gelas, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'romance':
-if (args.length < 1) return reply(`Contoh: ${prefix}romance denz`)
-roce = args.join(' ')
-reply(mess.wait)
-roma = await getBuffer(`https://videfikri.com/api/textmaker/romancetext/?text=${roce}`)
-denz.sendMessage(from, roma, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'shadow':
-
-if (args.length < 1) return reply(`Contoh: ${prefix}shadow denz`)
-sdow = args.join(' ')
-reply(mess.wait)
-shan = await getBuffer(`https://videfikri.com/api/textmaker/shadowtext/?text=${sdow}`)
-denz.sendMessage(from, shan, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-
-case 'ga':
-
-if (args.length < 1) return reply(`Contoh: ${prefix}shadow denz`)
-sdow = args.join(' ')
-reply(mess.wait)
-shan = await getBuffer(`https://api-rull.herokuapp.com/api/Photooxy/gradientavatar?text=${sdow}`)
-denz.sendMessage(from, shan, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'gr':
-
-
-
-if (args.length < 1) return reply(`Contoh: ${prefix}shadow denz`)
-sdow = args.join(' ')
-reply(mess.wait)
-shan = await getBuffer(`https://api-rull.herokuapp.com/api/Photooxy/glowrainbow?text=${sdow}`)
-denz.sendMessage(from, shan, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'glitch':
-//
-//
-if (args.length < 1) return reply(`Contoh: ${prefix}glitch denz/bot`)
-gl = `${args.join(' ')}`
-gel1 = gl.split("|")[0];
-gel2 = gl.split("|")[1];
-reply(mess.wait)
-litsh = await getBuffer(`https://videfikri.com/api/textmaker/tiktokeffect/?text1=${gel1}&text2=${gel2}`, {method: 'get'})
-denz.sendMessage(from, litsh, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'rw':
-//
-//
-if (args.length < 1) return reply(`Contoh: ${prefix}glitch denz/bot`)
-gl = `${args.join(' ')}`
-gel1 = gl.split("|")[0];
-gel2 = gl.split("|")[1];
-gel3 = gl.split("|")[2];
-reply(mess.wait)
-litsh = await getBuffer(`https://api-rull.herokuapp.com/api/photofunia/retro-wave?text1=${gel1}&text2=${gel2}&text3=${gel3}&font=2`, {method: 'get'})
-denz.sendMessage(from, litsh, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'rw2':
-//
-//
-if (args.length < 1) return reply(`Contoh: ${prefix}glitch denz/bot`)
-gl = `${args.join(' ')}`
-gel1 = gl.split("|")[0];
-gel2 = gl.split("|")[1];
-gel3 = gl.split("|")[2];
-reply(mess.wait)
-litsh = await getBuffer(`https://api-rull.herokuapp.com/api/photofunia/retro-wave?text1=${gel1}&text2=${gel2}&text3=${gel3}&font=2&bg=3`, {method: 'get'})
-denz.sendMessage(from, litsh, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-case 'coffe':
-//
-//
-if (args.length < 1) return reply(`Contoh: ${prefix}coffe denz`)
-kop = args.join(' ')
-reply(mess.wait)
-ppi = await getBuffer(`https://videfikri.com/api/textmaker/coffeecup/?text=${kop}`)
-denz.sendMessage(from, ppi, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'candy':
-//
-//
-if (args.length < 1) return reply(`Contoh: ${prefix}candy denz`)
-cndy = args.join(' ')
-reply(mess.wait)
-prmen = await getBuffer(`https://videfikri.com/api/textmaker/sweetcandy/?text=${cndy}`)
-denz.sendMessage(from, prmen, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'candy':
-//
-//
-if (args.length < 1) return reply(`Contoh: ${prefix}candy denz`)
-teks = args.join(' ')
-reply(mess.wait)
-prmen = await getBuffer(`https://videfikri.com/api/textmaker/paperonglass/?text=${teks}`)
-denz.sendMessage(from, prmen, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'smoke':
-//
-//
-if (args.length < 1) return reply(`Contoh: ${prefix}candy denz`)
-teks = args.join(' ')
-reply(mess.wait)
-prmen = await getBuffer(`https://api-rull.herokuapp.com/api/Photooxy/smoke?text=${teks}`)
-denz.sendMessage(from, prmen, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'hpotter':
-//
-//
-if (args.length < 1) return reply(`Contoh: ${prefix}hpotter denz`)
-hpter = args.join(' ')
-reply(mess.wait)
-helpter = await getBuffer(`https://videfikri.com/api/textmaker/hpotter/?text=${hpter}`)
-denz.sendMessage(from, helpter, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'woodblock':
-//
-//
-if (args.length < 1) return reply(`Contoh: ${prefix}woodblock denz`)
-woblk = args.join(' ')
-reply(mess.wait)
-gblok = await getBuffer(`https://videfikri.com/api/textmaker/woodblock/?text=${woblk}`)
-denz.sendMessage(from, gblok, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'gbutton':
-//
-//
-if (args.length < 1) return reply(`Contoh: ${prefix}woodblock denz`)
-woblk = args.join(' ')
-reply(mess.wait)
-gblok = await getBuffer(`https://api.zeks.xyz/api/gplaybutton?text=${woblk}&apikey=${zeks}`)
-denz.sendMessage(from, gblok, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-case 'sbutton':
-//
-//
-if (args.length < 1) return reply(`Contoh: ${prefix}woodblock denz`)
-woblk = args.join(' ')
-reply(mess.wait)
-gblok = await getBuffer(`https://api.zeks.xyz/api/splaybutton?text=${woblk}&apikey=${zeks}`)
-denz.sendMessage(from, gblok, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-//
-break
-                    case 'harrypotter':
-				ween = args.join(' ')
-				if (ween.length > 10) return reply('Teksnya kepanjangan, maksimal 9 karakter')
-				reply(ind.wait())
-				buffer = await getBuffer(`https://videfikri.com/api/textmaker/hpotter/?text=${ween}`)
-		    denz.sendMessage(from, buffer, image, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-		    break
-                    case 'earrapemedium':
-denz.updatePresence(from, Presence.recording)
-		        if (!isQuotedAudio) return reply('Reply audio yang akan di Earrape medium')
-		 encmediap = isQuotedAudio ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
-		mediaq = await denz.downloadAndSaveMediaMessage(encmediap)
-	    ran = getRandom('.mp3')
-		try {
-			exec(`ffmpeg -i ${mediaq} -af volume=39 ${ran}`, (err, stderr, stdout) => {
-				//fs.unlinkSync(mediaq)
-				if (err) return reply('Error!')
-				ntc1 = fs.readFileSync(ran)
-				denz.sendMessage(from, ntc1, audio, {mimetype: 'audio/mp4', ptt:true, duration: -01})
-	    //fs.unlinkSync(ranm)
-				//fs.unlinkSync(ran)
-				
-				})
-				} catch (err) {
-	denz.sendMessage(from, "Gagal Membuat Suara MP3 Menjadi Earrape medium!!", text, { quoted: mek  })
-	console.log(err)
-    }
-				break
-case 'earrapesuper':
-denz.updatePresence(from, Presence.recording)
-		        if (!isQuotedAudio) return reply('Reply audio yang akan di Earrape super')
-		 encmediapp = isQuotedAudio ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
-		mediac = await denz.downloadAndSaveMediaMessage(encmediapp)
-	    ran = getRandom('.mp3')
-		try {
-			exec(`ffmpeg -i ${mediac} -af volume=62 ${ran}`, (err, stderr, stdout) => {
-				//fs.unlinkSync(mediac)
-				if (err) return reply('Error!')
-				ntc1 = fs.readFileSync(ran)
-				denz.sendMessage(from, ntc1, audio, {mimetype: 'audio/mp4', ptt:true, duration: -01})
-	    //fs.unlinkSync(ranm)
-				//fs.unlinkSync(ran)
-				
-				})
-				} catch (err) {
-	denz.sendMessage(from, "Gagal Membuat Suara MP3 Menjadi Earrape super!!", text, { quoted: mek  })
-	console.log(err)
-    }
-				break
-				case 'vibra':
-				denz.updatePresence(from, Presence.recording)
-if (!isQuotedAudio) return reply('Reply audio nya om')
-                   encmediappp = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-		    mediav = await denz.downloadAndSaveMediaMessage(encmediappp)
-		    ran = getRandom('.mp3')
-		    exec(`ffmpeg -i ${mediav} -filter_complex "vibrato=f=99" ${ran}`, (err, stderr, stdout) => {
-			fs.unlinkSync(mediav)
-			if (err) return reply('emror!')
-			hah = fs.readFileSync(ran)
-			denz.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: mek,duration: -91927829})
-			fs.unlinkSync(ran)
-		    })
-		break
-case 'vibramedium':
-denz.updatePresence(from, Presence.recording)
-if (!isQuotedAudio) return reply('Reply audio nya om')
-                   encmediapppp = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-		    mediab = await denz.downloadAndSaveMediaMessage(encmediapppp)
-		    ran = getRandom('.mp3')
-		    exec(`ffmpeg -i ${mediab} -filter_complex "vibrato=f=9999" ${ran}`, (err, stderr, stdout) => {
-			fs.unlinkSync(mediab)
-			if (err) return reply('emror!')
-			hah = fs.readFileSync(ran)
-			denz.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: mek,duration: -91927829})
-			fs.unlinkSync(ran)
-		    })
-		break
-case 'tikus':
-denz.updatePresence(from, Presence.recording)
-
-
-
-					 	if (!isQuotedAudio) return reply('Reply audio yang akan di jadikan suara tikus')
-
-				 encmediapppppd = isQuotedAudio ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
-
-				mediakd = await denz.downloadAndSaveMediaMessage(encmediapppppd)
-
-			ranm = getRandom('.mp3')
-
-			try {
-
-		exec(`ffmpeg -i ${mediakd} -filter:a "atempo=1.5,asetrate=36500*3.95" ${ranm}`, (err, stderr, stdout) => {
-
-			if (err) return denz.sendMessage(from, "Gagal Mank:v", text, { quoted: mek})
-
-			buffer = fs.readFileSync(ranm)
-
-			denz.sendMessage(from, buffer, audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true, duration: -01})
-
-			//fs.unlinkSync(ranm)
-
-			
-
-		})
-
-	} catch (err) {
-
-		denz.sendMessage(from, "Gagal Membuat Suara MP3 Menjadi tikus!!", text, { quoted: mek })
-
-		console.log(err)
-
-	}
-
-	break
-case 'demon':
-denz.updatePresence(from, Presence.recording)
-
-
-
-					 	if (!isQuotedAudio) return reply('Reply audio yang akan di ubah ke suara demon')
-
-				 encmediappppppd = isQuotedAudio ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
-
-				mediazxd = await denz.downloadAndSaveMediaMessage(encmediappppppd)
-
-			ranm = getRandom('.mp3')
-
-			try {
-
-		exec(`ffmpeg -i ${mediazxd} -filter:a "atempo=1.5,asetrate=16500*1.35" ${ranm}`, (err, stderr, stdout) => {
-
-			if (err) return denz.sendMessage(from, "Gagal Mank:v", text, { quoted: mek})
-
-			buffer = fs.readFileSync(ranm)
-
-			denz.sendMessage(from, buffer, audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true, duration: -01})
-
-			//fs.unlinkSync(ranm)
-
-			
-
-		})
-
-	} catch (err) {
-
-		denz.sendMessage(from, "Gagal Membuat Suara MP3 Menjadi audio demon!!", text, { quoted: mek })
-
-		console.log(err)
-
-	}
-
-	break
-case 'slowmo':
-denz.updatePresence(from, Presence.recording)
-
-
-
-					 	if (!isQuotedAudio) return reply('Reply audio yang akan di slowmo')
-
-				 encmediapppppppd = isQuotedAudio ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
-
-				mediazxzd = await denz.downloadAndSaveMediaMessage(encmediapppppppd)
-
-			ranm = getRandom('.mp3')
-
-			try {
-
-		exec(`ffmpeg -i ${mediazxzd} -filter:a "atempo=0.9,asetrate=26500*1.25" ${ranm}`, (err, stderr, stdout) => {
-
-			if (err) return denz.sendMessage(from, "Gagal Mank:v", text, { quoted: mek})
-
-			buffer = fs.readFileSync(ranm)
-
-			denz.sendMessage(from, buffer, audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true, duration: -01})
-
-			//fs.unlinkSync(ranm)
-
-			
-
-		})
-
-	} catch (err) {
-
-		denz.sendMessage(from, "Gagal Membuat Suara MP3 Menjadi Slowmotion!!", text, { quoted: mek })
-
-		console.log(err)
-
-	}
-
-	break
-	case 'fast':
-					encmediaa = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-					mediapo = await denz.downloadAndSaveMediaMessage(encmediaa)
-					ran = getRandom('.mp3')
-					exec(`ffmpeg -i ${mediapo} -filter:a "atempo=1.3,asetrate=43000" ${ran}`, (err, stderr, stdout) => {
-						fs.unlinkSync(mediapo)
-						if (err) return reply('Error!')
-						hah = fs.readFileSync(ran)
-						denz.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: ftoko})
-						fs.unlinkSync(ran)
-					})
-					break
-case 'faster':
-denz.updatePresence(from, Presence.recording)
-
-
-
-					 	if (!isQuotedAudio) return reply('Reply audio yang akan di faster')
-
-				 encmediappppppppd = isQuotedAudio ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
-
-				mediazxzd = await denz.downloadAndSaveMediaMessage(encmediappppppppd)
-
-			ranm = getRandom('.mp3')
-
-			try {
-
-		exec(`ffmpeg -i ${mediazxzd} -filter:a "atempo=1.5,asetrate=16500*2.75" ${ranm}`, (err, stderr, stdout) => {
-
-			if (err) return denz.sendMessage(from, "Gagal Mank:v", text, { quoted: mek})
-
-			buffer = fs.readFileSync(ranm)
-
-			denz.sendMessage(from, buffer, audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true, duration: -01})
-
-			//fs.unlinkSync(ranm)
-
-			
-
-		})
-
-	} catch (err) {
-
-		denz.sendMessage(from, "Gagal Membuat Suara MP3 Menjadi faster!!", text, { quoted: mek })
-
-		console.log(err)
-
-	}
-
-	break
-	case 'vibrasuper':
-denz.updatePresence(from, Presence.recording)
-if (!isQuotedAudio) return reply('Reply audio nya om')
-                   encmediapj = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-		    mediaspra = await denz.downloadAndSaveMediaMessage(encmediapj)
-		    ran = getRandom('.mp3')
-		    exec(`ffmpeg -i ${mediaspra} -filter_complex "vibrato=f=10999" ${ran}`, (err, stderr, stdout) => {
-			fs.unlinkSync(mediaspra)
-			if (err) return reply('emror!')
-			hah = fs.readFileSync(ran)
-			denz.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: mek,duration: -91927829})
-			fs.unlinkSync(ran)
-		    })
-		break
-		case 'gemuk':
-		denz.updatePresence(from, Presence.recording)
-
-		    encmediapk = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-
-		    mediandut = await denz.downloadAndSaveMediaMessage(encmediapk)
-		    ran = getRandom('.mp3')
-		    exec(`ffmpeg -i ${mediandut} -filter:a "atempo=1.6,asetrate=22100" ${ran}`, (err, stderr, stdout) => {
-			fs.unlinkSync(mediandut)
-			if (err) return reply('Error!')
-			hah = fs.readFileSync(ran)
-			denz.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: mek,duration: -9973938393})
-			fs.unlinkSync(ran)
-		    })
-		break
-		case 'tupai':
-		denz.updatePresence(from, Presence.recording)
-
-		    encmediapi = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-
-		    medianduz = await denz.downloadAndSaveMediaMessage(encmediapi)
-		    ran = getRandom('.mp3')
-		    exec(`ffmpeg -i ${medianduz} -filter:a "atempo=0.5,asetrate=65100" ${ran}`, (err, stderr, stdout) => {
-			fs.unlinkSync(medianduz)
-			if (err) return reply('Error!')
-			hah = fs.readFileSync(ran)
-			denz.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: mek,duration: -9973938393})
-			fs.unlinkSync(ran)
-		    })
-		break
-		case 'superbass':                 
-denz.updatePresence(from, Presence.recording)
-		    encmediapss = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-
-		    mediandss = await denz.downloadAndSaveMediaMessage(encmediapss)
-		    ran = getRandom('.mp3')
-		    exec(`ffmpeg -i ${mediandss} -af equalizer=f=144:width_type=o:width=2:g=30 ${ran}`, (err, stderr, stdout) => {
-			fs.unlinkSync(mediandss)
-			if (err) return reply('Error!')
-			hah = fs.readFileSync(ran)
-			denz.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: mek,duration: 9973938393})
-			fs.unlinkSync(ran)
-		    })
-                                break
-                                case 'nightcore':
-                                denz.updatePresence(from, Presence.recording)
-                            if (!isQuotedAudio) return reply('Reply audio nya om')
-		    encmediapsc = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-		    mediancr = await denz.downloadAndSaveMediaMessage(encmediapsc)
-		    ran = getRandom('.mp3')
-		    exec(`ffmpeg -i ${mediancr} -filter:a atempo=1.06,asetrate=44100*1.25 ${ran}`, (err, stderr, stdout) => {
-			fs.unlinkSync(mediancr)
-			if (err) return reply('Error!')
-			hah = fs.readFileSync(ran)
-			denz.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: mek,duration: -01})
-			fs.unlinkSync(ran)
-		    })
-		break
-case 'nightcoremedium':
-denz.updatePresence(from, Presence.recording)
-                            if (!isQuotedAudio) return reply('Reply audio nya om')
-		    encmediapscm = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-		    mediancv = await denz.downloadAndSaveMediaMessage(encmediapscm)
-		    ran = getRandom('.mp3')
-		    exec(`ffmpeg -i ${mediancv} -filter:a atempo=2.06,asetrate=44100*1.75 ${ran}`, (err, stderr, stdout) => {
-			fs.unlinkSync(mediancv)
-			if (err) return reply('Error!')
-			hah = fs.readFileSync(ran)
-			denz.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: mek,duration: -01})
-			fs.unlinkSync(ran)
-		    })
-		break
-case 'nightcoresuper':
-denz.updatePresence(from, Presence.recording)
-                            if (!isQuotedAudio) return reply('Reply audio nya om')
-		    encmediapscp = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-		    mediancvspr = await denz.downloadAndSaveMediaMessage(encmediapscp)
-		    ran = getRandom('.mp3')
-		    exec(`ffmpeg -i ${mediancvspr} -filter:a atempo=2.16,asetrate=44100*1.95 ${ran}`, (err, stderr, stdout) => {
-			fs.unlinkSync(mediancvspr)
-			if (err) return reply('Error!')
-			hah = fs.readFileSync(ran)
-			denz.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: mek,duration: -01})
-			fs.unlinkSync(ran)
-		    })
-		break
-		case 'balik':
-	encmediau = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-	mediau = await denz.downloadAndSaveMediaMessage(encmediau)
-	ran = getRandom('.mp3')
-	exec(`ffmpeg -i ${mediau} -filter_complex "areverse" ${ran}`, (err, stderr, stdout) => {
-fs.unlinkSync(mediau)
-if (err) return reply('Error!')
-hah = fs.readFileSync(ran)
-denz.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt: true, duration: 999999999, quoted:mek})
-fs.unlinkSync(ran)
-	})
-break
-case 'imut':
-					encmediapo = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-					mediapoa = await denz.downloadAndSaveMediaMessage(encmediapo)
-					ran = getRandom('.mp3')
-					exec(`ffmpeg -i ${mediapoa} -af atempo=3/4,asetrate=44500*4/3 ${ran}`, (err, stderr, stdout) => {
-						fs.unlinkSync(mediapoa)
-						if (err) return reply('Error!')
-						hah = fs.readFileSync(ran)
-						denz.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt: true, quoted: fdoc})
-						fs.unlinkSync(ran)
-					})
-				break
-				case 'hode':
-					encmediaw = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-					mediax = await denz.downloadAndSaveMediaMessage(encmediaw)
-					ran = getRandom('.mp3')
-					exec(`ffmpeg -i ${mediax} -af atempo=4/3,asetrate=44500*3/4 ${ran}`, (err, stderr, stdout) => {
-						fs.unlinkSync(mediax)
-						if (err) return reply('Error!')
-						hah = fs.readFileSync(ran)
-						denz.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt: true, quoted: fdoc})
-						fs.unlinkSync(ran)
-					})
-				break
-				case 'vibra':     
-var req = args.join(' ')            
-
-					encmediaxz = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-
-					mediaxz = await denz.downloadAndSaveMediaMessage(encmediaxz)
-					ran = getRandom('.mp3')
-					exec(`ffmpeg -i ${mediaxz} -filter_complex "vibrato=f=${req}" ${ran}`, (err, stderr, stdout) => {
-						fs.unlinkSync(mediaxz)
-						if (err) return reply('Error!')
-						hah = fs.readFileSync(ran)
-						denz.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: ftoko})
-						fs.unlinkSync(ran)
-					})
-				break
-									case 'vibrav':     
-var req = args.join(' ')            
-
-					encmediazx = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-
-					mediazx = await denz.downloadAndSaveMediaMessage(encmediazx)
-					ran = getRandom('.mp4')
-					exec(`ffmpeg -i ${mediazx} -filter_complex "vibrato=f=${req}" ${ran}`, (err, stderr, stdout) => {
-						fs.unlinkSync(mediazx)
-						if (err) return reply('Error!')
-						hah = fs.readFileSync(ran)
-										denz.sendMessage(from, hah, video, { mimetype: 'video/mp4', quoted: ftoko })
-})
-					break
-					case 'tempo':
-   var req = args.join(' ')            
-					encmediam = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-					mediamn = await denz.downloadAndSaveMediaMessage(encmediam)
-					ran = getRandom('.mp3')
-					exec(`ffmpeg -i ${mediamn} -filter:a "atempo=1.0,asetrate=${req}" ${ran}`, (err, stderr, stdout) => {
-						fs.unlinkSync(mediamn)
-						if (err) return reply('Error!')
-						hah = fs.readFileSync(ran)
-						denz.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: ftroli})
-						fs.unlinkSync(ran)
-					})
-				break
-				case 'tempo-v':
-   var req = args.join(' ')            
-					encmediaq = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-					mediamv = await denz.downloadAndSaveMediaMessage(encmediaq)
-					ran = getRandom('.mp4')
-					exec(`ffmpeg -i ${mediamv} -filter:a "atempo=1.0,asetrate=${req}" ${ran}`, (err, stderr, stdout) => {
-						fs.unlinkSync(mediamv)
-						if (err) return reply('Error!')
-						hah = fs.readFileSync(ran)
-						denz.sendMessage(from, hah, video, { mimetype: 'video/mp4', quoted: ftoko })
-})
-				break
-				case 'gemes':
-					encmediaz = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-
-					mediames = await denz.downloadAndSaveMediaMessage(encmediaz)
-					ran = getRandom('.mp3')
-					exec(`ffmpeg -i ${mediames} -filter:a "atempo=1.0,asetrate=50000" ${ran}`, (err, stderr, stdout) => {
-						fs.unlinkSync(mediames)
-						if (err) return reply('Error!')
-						hah = fs.readFileSync(ran)
-					denz.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: ftoko})
-						fs.unlinkSync(ran)
-					})
-					break
-						case 'gemuk':
-					encmediat = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-
-					mediamut = await denz.downloadAndSaveMediaMessage(encmediat)
-					ran = getRandom('.mp3')
-					exec(`ffmpeg -i ${mediamut} -filter:a "atempo=1.6,asetrate=22100" ${ran}`, (err, stderr, stdout) => {
-						fs.unlinkSync(mediamut)
-						if (err) return reply('Error!')
-						hah = fs.readFileSync(ran)
-					denz.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: ftoko})
-						fs.unlinkSync(ran)
-					})
-					break
-					case 'cm':
-					encmediacm = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-					mediacm = await denz.downloadAndSaveMediaMessage(encmediacm)
-					ran = getRandom('.mp4')
-					exec(`ffmpeg -i ${mediacm} "origin(rgb24).png" -c:v libx264 -preset placebo -qp 0 -x264-params "keyint=15:no-deblock=1" -pix_fmt yuv444p10le -sws_flags spline+accurate_rnd+full_chroma_int -vf "colormatrix=bt470bg:bt709" -color_range 1 -colorspace 1 -color_primaries 1 -color_trc 1 "colormatrix_yuv444p10le.avi" ${ran}`, (err, stderr, stdout) => {
-						fs.unlinkSync(mediacm)
-						if (err) return reply('Error!')
-						hah = fs.readFileSync(ran)
-						denz.sendMessage(from, hah, video, { mimetype: 'video/mp4', quoted: ftoko })
-					})
-					break
-					case 'nsfwloli':
-				try {
-				if (isBanned) return reply(mess.only.benned)    
-				if (!isUser) return reply(mess.only.userB)
-				
-				if (isLimit(sender)) return reply(limits.limitend(pushname2))
-				if (!isNsfw) return reply(' *FALSE* ')
-				res = await fetchFxc7(`https://api.vhtear.com/randomloli&apikey=${VthearApi}`, {method: 'get'})
-				buffer = await getBuffer(res.result.result)
-				frhan.sendMessage(from, buffer, image, {quoted: mek, caption: 'Jangan jadiin bahan buat comli om'})
-				} catch (e) {
-				console.log(`Error :`, color(e,'red'))
-				reply(' *ERROR* ')
-				}
-				await limitAdd(sender)
-			break 
-			case 'nsfwsolo':
-				try {
-				if (isBanned) return reply(mess.only.benned)    
-				if (!isUser) return reply(mess.only.userB)
-				
-				if (isLimit(sender)) return reply(limits.limitend(pushname2))
-				if (!isNsfw) return reply(' *FALSE* ')
-				res = await fetchFxc7(`http://lolhuman.herokuapp.com/api/random2/solo?apikey=${LolApi}`, {method: 'get'})
-				buffer = await getBuffer(res.result)
-				frhan.sendMessage(from, buffer, image, {quoted: mek, caption: 'Jangan jadiin bahan buat comli om'})
-				} catch (e) {
-				console.log(`Error :`, color(e,'red'))
-				reply(' *ERROR* ')
-				}
-				await limitAdd(sender)
-			break 
-			case 'nsfweron':
-				try {
-				if (isBanned) return reply(mess.only.benned)    
-				if (!isUser) return reply(mess.only.userB)
-				
-				if (isLimit(sender)) return reply(limits.limitend(pushname2))
-				if (!isNsfw) return reply(' *FALSE* ')
-				res = await fetchFxc7(`http://lolhuman.herokuapp.com/api/random2/eron?apikey=${LolApi}`, {method: 'get'})
-				buffer = await getBuffer(res.result)
-				frhan.sendMessage(from, buffer, image, {quoted: mek, caption: 'Jangan jadiin bahan buat comli om'})
-				} catch (e) {
-				console.log(`Error :`, color(e,'red'))
-				reply(' *ERROR* ')
-				}
-				await limitAdd(sender)
-			break 
-				case 'nsfwlewd':
-				try {
-				if (isBanned) return reply(mess.only.benned)    
-				if (!isUser) return reply(mess.only.userB)
-				
-				if (isLimit(sender)) return reply(limits.limitend(pushname2))
-				if (!isNsfw) return reply(' *FALSE* ')
-				res = await fetchFxc7(`http://lolhuman.herokuapp.com/api/random2/lewd?apikey=${LolApi}`, {method: 'get'})
-				buffer = await getBuffer(res.result)
-				frhan.sendMessage(from, buffer, image, {quoted: mek, caption: 'Jangan jadiin bahan buat comli om'})
-				} catch (e) {
-				console.log(`Error :`, color(e,'red'))
-				reply(' *ERROR* ')
-				}
-				await limitAdd(sender)
-			break 
-			case 'nsfwyuri':
-				res = await getBuffer(`http://lolhuman.herokuapp.com/api/random2/yuri?apikey=${apikey}`, {method: 'get'})
-				buffer = await getBuffer(res.result)
-				denz.sendMessage(from, buffer, image, {quoted: fimg, caption: 'Jangan jadiin bahan buat comli om'})
-				} catch (e) {
-				console.log(`Error :`, color(e,'red'))
-				reply(' *ERROR* ')
-				}
-			break 
-				case 'nsfwecchi':
-				res = await getBuffer(`http://lolhuman.herokuapp.com/api/random/nsfw/ecchi?apikey=${apikey}`, {method: 'get'})
-				buffer = await getBuffer(res.result)
-				denz.sendMessage(from, buffer, image, {quoted: fimg, caption: 'Jangan jadiin bahan buat comli om'})
-				} catch (e) {
-				console.log(`Error :`, color(e,'red'))
-				reply(' *ERROR* ')
-				}
-			break 
-				case 'nsfwparadise':
-						res = await fetchFxc7(`http://lolhuman.herokuapp.com/api/random/nsfw/hentaiparadise?apikey=${LolApi}`, {method: 'get'})
-						buffer = await getBuffer(res.result)
-						denz.sendMessage(from, buffer, image, {quoted: fimg, caption: 'Jangan jadiin bahan buat comli om'})
-					} catch (e) {
-						console.log(`Error :`, color(e,'red'))
-						reply(' *ERROR* ')
-					}
-					break 
-				case 'nsfwbigtt':
-						res = await getBuffer(`http://lolhuman.herokuapp.com/api/random/nsfw/biganimetiddies?apikey=${apikey}`, {method: 'get'})
-						buffer = await getBuffer(res.result)
-						denz.sendMessage(from, buffer, image, {quoted: mek, caption: 'Jangan jadiin bahan buat comli om'})
-					} catch (e) {
-						console.log(`Error :`, color(e,'red'))
-						reply(' *ERROR* ')
-					}
-					break 
-				case 'nsfwclasic':
-						res = await getBuffer(`http://lolhuman.herokuapp.com/api/random2/classic?apikey=${apikey}`, {method: 'get'})
-						buffer = await getBuffer(res.result.result)
-						denz.sendMessage(from, buffer, image, {quoted: fimg, caption: 'Jangan jadiin bahan buat comli om'})
-					} catch (e) {
-						console.log(`Error :`, color(e,'red'))
-						reply(' *ERROR* ')
-					}
-					break 
-				case 'nsfwcum':
-						res = await getBuffer(`http://lolhuman.herokuapp.com/api/random2/cum_jpg?apikey=${apikey}`, {method: 'get'})
-						buffer = await getBuffer(res.result)
-						denz.sendMessage(from, buffer, image, {quoted: fimg, caption: 'Jangan jadiin bahan buat comli om'})
-					} catch (e) {
-						console.log(`Error :`, color(e,'red'))
-						reply(' *ERROR* ')
-					}
-					break 
-				case 'nsfwpussy':
-						res = await fetchFxc7(`http://lolhuman.herokuapp.com/api/random2/pussy?apikey=${apikey}`, {method: 'get'})
-						buffer = await getBuffer(res.result)
-						denz.sendMessage(from, buffer, image, {quoted: fimg, caption: 'Jangan jadiin bahan buat comli om'})
-					} catch (e) {
-						console.log(`Error :`, color(e,'red'))
-						reply(' *ERROR* ')
-					}
-					break 
-			    case 'nsfwblowjob':
-						res = await getBuffer(`https://tobz-api.herokuapp.com/api/nsfwblowjob?apikey=${TobzApi}`, {method: 'get'})
-						buffer = await getBuffer(res.result)
-						denz.sendMessage(from, buffer, image, {quoted: fimg, caption: 'Jangan jadiin bahan buat comli om'})
-					} catch (e) {
-						console.log(`Error :`, color(e,'red'))
-						reply(' *ERROR* ')
-					}
-					break 
-			    case 'nsfwneko':
-						res = await getBuffer(`https://tobz-api.herokuapp.com/api/nsfwneko?apikey=${TobzApi}`, {method: 'get'})
-						buffer = await getBuffer(res.result)
-						denz.sendMessage(from, buffer, image, {quoted: fimg, caption: 'ni anjim'})
-					} catch (e) {
-						console.log(`Error :`, color(e,'red'))
-						reply(' *ERROR* ')
-					}
-					break 
-				case 'nsfwtrap':
-						res = await getBuffer(`https://tobz-api.herokuapp.com/api/nsfwtrap?apikey=${TobzApi}`, {method: 'get'})
-						buffer = await getBuffer(res.result)
-						denz.sendMessage(from, buffer, image, {quoted: fimg, caption: 'ni anjim'})
-					} catch (e) {
-						console.log(`Error :`, color(e,'red'))
-						reply(' *ERROR* ')
-					}
-					await limitAdd(sender) 
-					break 
-				case 'hentai':
-						res = await getBuffer(`https://tobz-api.herokuapp.com/api/hentai?apikey=${TobzApi}`, {method: 'get'})
-						buffer = await getBuffer(res.result)
-						denz.sendMessage(from, buffer, image, {quoted: fimg, caption: 'ni anjim'})
-					} catch (e) {
-						console.log(`Error :`, color(e,'red'))
-						reply(' *ERROR* ')
-					}
-					break 
-				case 'tebakgambar':
-                anu = await fetchJson(`https://videfikri.com/api/tebakgambar`, {method: 'get'})
-					bufferkkk = await getBuffer(anu.result.soal_gbr)
-					setTimeout( () => {
-					denz.sendMessage(from, '*➸ Jawaban :* '+anu.result.jawaban, text, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}}) // ur cods
-					}, 30000) // 1000 = 1s,
-					setTimeout( () => {
-					denz.sendMessage(from, '_10 Detik lagi…_', text) // ur cods
-					}, 20000) // 1000 = 1s,
-					setTimeout( () => {
-					denz.sendMessage(from, '_20 Detik lagi_…', text) // ur cods
-					}, 10000) // 1000 = 1s,
-					setTimeout( () => {
-					denz.sendMessage(from, '_30 Detik lagi_…', text) // ur cods
-					}, 2500) // 1000 = 1s,
-					setTimeout( () => {
-					denz.sendMessage(from, bufferkkk, image, { caption: '_Jelaskan Apa Maksud Gambar Ini_', quoted: ftoko }) // ur cods
-					}, 0) // 1000 = 1s,
-					break
-					case 'apiteks':
-				   if (args.length < 1) return reply('Teksnya mana um')
-					love = args.join(' ')
-					if (love.length > 12) return reply('Teksnya kepanjangan, maksimal 9 karakter')
-                    reply(mess.wait)
-					bufferxcz = await getBuffer(`https://api.zeks.xyz/api/tfire?text=${love}&apikey=${zeks}`, {method: 'get'})
-					denz.sendMessage(from, bufferxcz, image, {quoted: ftoko, caption: ' '+love})
-					break
-					case 'quotemaker':
-                var gh = args.join(' ')
-					var quote = gh.split("|")[0];
-					var wm = gh.split("|")[1];
-					const pref = `Usage: \n${prefix}quotemaker teks|watermark\n\nEx :\n${prefix}quotemaker ini contoh|bicit`
-					if (args.length < 1) return reply(pref)
-					reply(ind.wait())
-					anu = await fetchJson(`https://terhambar.com/aw/qts/?kata=${quote}&author=${wm}&tipe=random`, {method: 'get'})
-					buffer = await getBuffer(anu.result)
-					denz.sendMessage(from, buffer, image, {caption: 'Nih anjim', quoted: ftoko})
-					break
-					case 'mimpi':
-			    anu = await fetchJson(`https://api.arugaz.my.id/api/primbon/tafsirmimpi?mimpi=${args.join(' ')}`, {method: 'get'})
-			        mimpi = `Arti Mimpi *${args.join(' ')}* Adalah:\n${anu.result.hasil}`
-			        denz.sendMessage(from, mimpi, text, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}}) 
-			       	break
-					case 'kodenuklir2':
-					anu = await getBuffer(`https://i.ibb.co/qm1qjdD/images-2020-12-28-T142307-987.jpg`)
-					denz.sendMessage(from, image, { quoted: ftoko, caption: kodenuklir2()})
-					break
-					case 'run':
-                
-                sy = args.join(' ')
-                return eval(sy)
-               
-break
-case '>':
-var konsol = args.join(' ')
-function sendResult(sul) {
-var sat = JSON.stringify(sul, null, 2)
-var bang = util.format(sat)
-return reply(bang)
-}
-reply(util.format(eval(`;(async () => { ${konsol} })()`)))
-break
-		case 'lolhumancek':
-   case 'ceklolkey':
- anunye = await fetchJson(`http://api.lolhuman.xyz/api/checkapikey?apikey=${args.join(' ')}`)
-nganu = `❒ *Username :* ${anunye.result.username}
-❒ *Sisa Limit :* ${anunye.result.requests}
-❒ *Type :* ${anunye.result.account_type}
-❒ *Expired :* ${anunye.result.expired}` 
-denz.sendMessage(from, nganu, text, {quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-break
-
-case 'tospam':
-if (!isQuotedSticker && !isQuotedAudio && !isQuotedImage && budy.length > 10) {
-teks = body.slice(8)
-oi1 = teks.split('|')[0]
-oi2 = teks.split('|')[1]
-if (Number(oi2) >= 50) return reply('Kebanyakan!')
-if (!Number(oi2)) return reply('Jumlah harus berupa angka!')
-	  for (let i = 0; i < oi2; i++) {
-	  denz.sendMessage(from, `${oi1}`, MessageType.text)
-	  }
-} else if (!isQuotedSticker && !isQuotedAudio && !isQuotedImage && budy.length < 10) {
-teks = mek.message.extendedTextMessage.contextInfo.quotedMessage.conversation
-if (!Number(args[0])) return reply('Jumlah harus berupa angka!')
-if (Number(args[0]) >= 50) return reply('Kebanyakan!')
-	  for (let i = 0; i < args[0]; i++) {
-	  denz.sendMessage(from, teks, MessageType.text)
-	  }
-} else if (isQuotedSticker) {
-	encmedian = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-	         median = await denz.downloadAndSaveMediaMessage(encmedian)
-				anu = fs.readFileSync(median)
-	if (!Number(args[0])) return reply('Jumlah harus berupa angka!')
-	if (Number(args[0]) >= 50) return reply('Kebanyakan!')
-	  for (let i = 0; i < args[0]; i++) {
-	  denz.sendMessage(from, anu, sticker)
-	  }
-} else if (isQuotedAudio) {
-	encmediat = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-	            mediat = await denz.downloadAndSaveMediaMessage(encmediat)
-				anu = fs.readFileSync(mediat)
-	if (!Number(args[0])) return reply('Jumlah harus berupa angka!')
-	if (Number(args[0]) >= 50) return reply('Kebanyakan!')
-	  for (let i = 0; i < args[0]; i++) {
-	  denz.sendMessage(from, anu, audio, {mimetype: 'audio/mp4', duration: 999999999, ptt:true})
-	  }
-} else if (isQuotedImage) {
-	boij = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
-	delb = await denz.downloadMediaMessage(boij)
-	teks = body.slice(6)
-	oi1 = teks.split('|')[0]
-oi2 = teks.split('|')[1]
-if (Number(oi2) >= 50) return reply('Kebanyakan!')
-	if (!Number(oi2)) return reply('Jumlah harus berupa angka!')
-	  for (let i = 0; i < oi2; i++) {
-	  denz.sendMessage(from, delb, MessageType.image, {caption: oi1})
-	  }
-}
-	  break
-case 'ppcouple':
-					anu = await fetchJson('https://lindow-api.herokuapp.com/api/ppcouple?apikey=LindowApi')
-					cwok = await getBuffer(anu.result.male)
-					cwek = await getBuffer(anu.result.female)
-					denz.sendMessage(from, cwek, image, { caption: 'Ini Yang Cewek', quoted: fimg })
-					denz.sendMessage(from, cwok, MessageType.image, { caption: 'Ini Yang Cowok', quoted: fimg })
-					break
-					case 'ppcouple2':
- yuksi = await fetchJson('https://lindow-api.herokuapp.com/api/anitopcouple?apikey=LindowApi')
-rand = await yuksi.result[Math.floor(Math.random() * yuksi.result.length)]
-reply(mess.wait)
-await sendMediaURL(from, rand.coupleImages.imageUrlOne, `_NIH YANG COWO_`)
-sendMediaURL(from, rand.coupleImages.imageUrlTwo, `_NIH YANG CEWE_`)
-break
-case 'admin':
-            case 'owner':
-            case 'creator':
-                  denz.sendMessage(from, {displayname: "Jeff", vcard: vcard}, MessageType.contact, { quoted: mek})
-                  denz.sendMessage(from, 'Tuh kontak Ownerku <•_•> ,Jangan Lupa Save Ya (*>*)',MessageType.text, { quoted: mek} )
-                  ini_buffer = await getBuffer("https://i.ibb.co/3RXKdX3/20210406-202806.jpg")
-                  denz.sendMessage(from, ini_buffer, MessageType.image, {quoted: ftoko, caption: 'JOIN GRUP: \n *https://chat.whatsapp.com/HYD57dkrNtUESI7Hbm203m*'})
-                  break
-                    denz.sendMessage(from, ga, text, {quoted: ftoko})
-				  denz.sendMessage(from, buffer, audio, {mimetype: 'audio/mp4', quoted: ftoko, ptt:true})
-				break
-				case 'igpost': 
-                 if (args.length < 1) return reply('Urlnya mana sayang?')
-				if (!isUrl(args[0]) && !args[0].includes('www.instagram.com')) return reply(mess.error.lv)
-					 ige = body.slice(8)
-                     anu = await fetchJson(`http://lolhuman.herokuapp.com/api/instagram?apikey=${apikey}&url=${args[0]}`, {method: 'get'})
-					if (anu.error) return reply(anu.error)
-					buffer = await getBuffer(anu.result)
-                    denz.sendMessage(from, buffer, image, { quoted: fdoc, contextInfo: {"forwardingScore": 999, "isForwarded": true}, caption: 'Nihh onii chan'})
-				    break
-case 'igvideo':
-if (args.length < 1) return reply('Urlnya mana sayang?')
-				if (!isUrl(args[0]) && !args[0].includes('www.instagram.com')) return reply(mess.error.lv)
-					 ige = body.slice(9)
-                     anu = await fetchJson(`http://lolhuman.herokuapp.com/api/instagram?apikey=${apikey}&url=${args[0]}`, {method: 'get'})
-					if (anu.error) return reply(anu.error)
-					buffer = await getBuffer(anu.result)
-                    denz.sendMessage(from, buffer, video, { quoted: fvid, contextInfo: {"forwardingScore": 999, "isForwarded": true}, caption: 'Nihh onii chan'})
-				    break
-				case 'igdl':
-                    if (args.length == 0) return reply(`Example: ${prefix + command} https://www.instagram.com/p/CJ8XKFmJ4al/?igshid=1acpcqo44kgkn`)
-                    ini_url = args[0]
-                    ini_url = await fetchJson(`http://api.lolhuman.xyz/api/instagram?apikey=${apikey}&url=${ini_url}`)
-                    ini_url = ini_url.result
-                    ini_type = image
-                    if (ini_url.includes(".mp4")) ini_type = video
-                    ini_buffer = await getBuffer(ini_url)
-                    denz.sendMessage(from, ini_buffer, ini_type, { quoted: fvid, contextInfo: {"forwardingScore": 999, "isForwarded": true}, quoted: sft })
-break
-
-case 'ig':
- pe = args.join('')
- anu = await fetchJson(`https://videfikri.com/api/igdl/?url=${pe}`)
- buffer = await getBuffer(`${anu.result.video}`)
- denz.sendMessage(from, buffer, video, { quoted: sft, contextInfo: {"forwardingScore": 999, "isForwarded": true}, caption: 'Nihh onii chan'})
- break
-
-case 'igtv':
- pe = args.join('')
- anu = await fetchJson(`https://videfikri.com/api/igtv/?url=${pe}`)
- buffer = await getBuffer(`${anu.result.video_url}`)
- denz.sendMessage(from, buffer, video, { quoted: fvid, contextInfo: {"forwardingScore": 999, "isForwarded": true}, caption: 'Nihh onii chan'})
- break
-case 'igpost': 
-                 if (args.length < 1) return reply('Urlnya mana sayang?')
-				if (!isUrl(args[0]) && !args[0].includes('www.instagram.com')) return reply(mess.error.lv)
-					 ige = body.slice(8)
-                     anu = await fetchJson(`http://lolhuman.herokuapp.com/api/instagram?apikey=${apikey}&url=${args[0]}`, {method: 'get'})
-					if (anu.error) return reply(anu.error)
-					buffer = await getBuffer(anu.result)
-                    denz.sendMessage(from, buffer, image, { quoted: fvid, contextInfo: {"forwardingScore": 999, "isForwarded": true}, caption: 'Nihh onii chan'})
-				    break
-case 'igvideo':
-if (args.length < 1) return reply('Urlnya mana sayang?')
-				if (!isUrl(args[0]) && !args[0].includes('www.instagram.com')) return reply(mess.error.lv)
-					 ige = body.slice(9)
-                     anu = await fetchJson(`http://lolhuman.herokuapp.com/api/instagram?apikey=${apikey}&url=${args[0]}`, {method: 'get'})
-					if (anu.error) return reply(anu.error)
-					buffer = await getBuffer(anu.result)
-                    denz.sendMessage(from, buffer, video, { quoted: fvid, contextInfo: {"forwardingScore": 999, "isForwarded": true}, caption: 'Nihh onii chan'})
-				    break
-					case 'igd':
-            if (args.length < 1) return reply('Link nya mana?')
-            anu = await fetchJson(`https://videfikri.com/api/igvideo/?url=${args[0]}`, {method: 'get'})          
-            buffer = await getBuffer(anu.result.video)
-            denz.sendMessage(from, buffer,video, { mimetype: 'video/mp4', filename: `${anu.result.fullname}.mp4`,quoted: fvid})
-            break
-case 'ig':
- pe = args.join(' ')
- anu = await fetchJson(`https://videfikri.com/api/igdl/?url=${pe}`)
- buf = await getBuffer(`${anu.result.video}`)
- denz.sendMessage(from, buf, video, {quoted:ftoko, caption: `Nih Boss` })
- break
- case 'block':
-					denz.updatePresence(from, Presence.composing) 
-				    denz.blockUser (`${args.join(' ')}@c.us`, "add")
-					denz.sendMessage(from, `𝗦𝘂𝗸𝘀𝗲𝘀 𝗠𝗲𝗺𝗯𝗹𝗼𝗸𝗶𝗿`, text)
-				break
-				case 'unblock':
-					denz.updatePresence(from, Presence.composing) 
-					denz.blockUser (`${args.join(' ')}@c.us`, "remove")
-					denz.sendMessage(from, `𝗦𝘂𝗸𝘀𝗲𝘀 𝗨𝗻𝗯𝗹𝗼𝗰𝗸𝗶𝗿`, text)
-				break 
-				case 'toaudio':
-			denz.updatePresence(from, Presence.composing)
-				if (!isQuotedAudio)
-				if (!isQuotedVideo) return reply('itu video bruh?:V')
-				reply(mess.wait)
-				encmediacau = JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo
-				mediaczs = await denz.downloadAndSaveMediaMessage(encmediacau)
-				ran = getRandom('.mp3')
-				exec(`ffmpeg -i ${mediaczs} ${ran}`, (err) => {
-					fs.unlinkSync(mediaczs)
-					if (err) return reply('Yahh emrror bruh:(')
-					buffer = fs.readFileSync(ran)
-					denz.sendMessage(from, buffer, audio, { mimetype: 'audio/mp4', quoted: ftoko})
-				})
-				break
-				case 'tovn':
-				denz.updatePresence(from, Presence.composing)
-				if (!isQuotedAudio)
-				if (!isQuotedVideo) return reply('itu video bruh?:V')
-				reply(mess.wait)
-				encmediavn = JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo
-				mediacvn = await denz.downloadAndSaveMediaMessage(encmediavn)
-				ran = getRandom('.mp3')
-				exec(`ffmpeg -i ${mediacvn} ${ran}`, (err) => {
-					fs.unlinkSync(mediacvn)
-					if (err) return reply('Yahh emrror bruh:(')
-					buffer = fs.readFileSync(ran)
-					denz.sendMessage(from, buffer, audio, { mimetype: 'audio/mp4', quoted: ftoko, ptt: true, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-				})
-				break
-				
-				case 'tovn-v':
-				denz.updatePresence(from, Presence.composing)
-				if (!isQuotedVideo) return reply('itu video bruh?:V')
-				reply(mess.wait)
-				encmediavnv = JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo
-				mediacvnv = await denz.downloadAndSaveMediaMessage(encmediavnv)
-				ran = getRandom('.mp4')
-				exec(`ffmpeg -i ${mediacvnv} ${ran}`, (err) => {
-					fs.unlinkSync(mediacvnv)
-					if (err) return reply('Yahh emrror bruh:(')
-					buffer = fs.readFileSync(ran)
-					denz.sendMessage(from, buffer, audio, { mimetype: 'audio/mp4', quoted: ftoko, ptt: true, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
-				})
-				break
-				case 'toaudio':
-				denz.updatePresence(from, Presence.composing)
-				if (!isQuotedAudio) return reply('itu video bruh?:V')
-				reply(mess.wait)
-				encmediaau = JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo
-				mediaaud = await denz.downloadAndSaveMediaMessage(encmediaau)
-				ran = getRandom('.mp3')
-				exec(`ffmpeg -i ${mediaaud} ${ran}`, (err) => {
-					fs.unlinkSync(mediaaud)
-					if (err) return reply('Yahh emrror bruh:(')
-denz.sendMessage(from, buffer, audio, { mimetype: 'ptt', quoted: ftoko, duration:99999999999999999999999})
-						fs.unlinkSync(ran)
-
-					   })
-				break
-				case 'cmd':
-            reply('Sedang Proses...')
-	           var teks = encodeURIComponent(body.slice(4))
-		       if (!teks) return denz.sendMessage(from,  MessageType.text, { quoted: ftroli, contextInfo: {"forwardingScore": 999, "isForwarded": true}, sendEphemeral: true})
-               var buffer  = await  getBuffer(`https://api-rull.herokuapp.com/api/cmd?code=${teks}`)
-               denz.sendMessage(from, buffer, image,  { quoted: ftroli, contextInfo: {"forwardingScore": 999, "isForwarded": true}, sendEphemeral: true})
-            break
-            case 'addbucin':
-                if (!isOwner) return reply(mess.only.ownerB)
-				huu = body.slice(10)
-						bucinrandom.push(huu)
-						fs.writeFileSync('./database/bucin.json', JSON.stringify(bucinrandom))
-						reply(`Sukses, Kata \n*${huu}*\n Telah Ditambahkan ke database`)
-					break
-					case 'bucin':
-						hasil = bucinrandom[Math.floor(Math.random() * (bucinrandom.length))]
-						denz.sendMessage(from, '*'+hasil+'*', text, {quoted: ftroli})
-					break
-					case 'bacotandilan':
-						hasil = randomdilan[Math.floor(Math.random() * (randomdilan.length))]
-						denz.sendMessage(from, '*'+hasil+'*\n\n~ *Dilan*', text, {quoted: ftoko})
-					break
-					case 'hekerbucin':
-				hasil = hekerbucin[Math.floor(Math.random() * (hekerbucin.length))]
-				denz.sendMessage(from, '*'+hasil+'*', text, {quoted: ftroli})
-				break 
-				case 'randomhusbu':
-        reply(`Sedang Proses...`)
-        buffer = await getBuffer(`https://lindow-api.herokuapp.com/api/husbu?apikey=LindowApi`)
-                    denz.sendMessage(from, buffer, image, { quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}, sendEphemeral: true})
-                    break
-        case 'randomwaifu':
-        reply(`Sedang Proses...`)
-        buffer = await getBuffer(`https://lindow-api.herokuapp.com/api/waifu?apikey=LindowApi`)
-                    denz.sendMessage(from, buffer, image, { quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}, sendEphemeral: true})
-                    break
-       case 'randomloli':
-       reply(`Sedang Proses...`)
-        buffer = await getBuffer(`https://lindow-api.herokuapp.com/api/loli?apikey=LindowApi`)
-                    denz.sendMessage(from, buffer, image, { quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}, sendEphemeral: true})
-                    break
-            if (!command) console.log(mek)
-            // END ADD CASE BY FAJAR!!!
-		default:
-		break
+		default:break
 		 if (isMedia && isAuto && !mek.message.videoMessage || isQuotedImage) {
 						const encmedia = mek
 						const media = await denz.downloadAndSaveMediaMessage(encmedia)
@@ -5734,7 +3638,9 @@ denz.sendMessage(from, buffer, audio, { mimetype: 'ptt', quoted: ftoko, duration
 	} catch (e) {
         e = String(e)
             if (!e.includes("this.isZero")) {
-	console.log(color('[ ERROR ]', 'red'), e)
+            if (!e.includes("Cannot read property 'conversation' of null")) {
+     console.log(color('[ ERROR ]', 'red'), e)
 	}
+    }
     }
     }

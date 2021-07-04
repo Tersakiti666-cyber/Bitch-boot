@@ -109,6 +109,7 @@ console.log(color(figlet.textSync('Bitch | Boot', {
 	console.log(color('┌', 'white'), color(`${tampilUcapan}`, 'magenta'))
 	console.log(color('└', 'white'), color(`${calender} > ${time}`, 'orange'))
 	console.log(color('✓ bitchboot created by denis putra', 'cyan'))
+	console.log(color('✓ bitchboot recoded by fajar alfarizi', 'cyan'))
 
 /**
  * Uncache a module
